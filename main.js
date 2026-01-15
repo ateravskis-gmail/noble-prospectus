@@ -8,6 +8,151 @@ let IMPACT_UI = null;
 const INTERSTITIAL_BY_SCREEN = new Map();
 let LAST_INTERSTITIAL_SCREEN = null;
 
+// ---- "Video loading…" message (shows after 1s if not playing) ----
+const VIDEO_LOADING = (() => {
+  const state = new WeakMap(); // video -> { el, timer }
+
+  const ensureEl = (wrap) => {
+    if (!wrap) return null;
+    let el = wrap.querySelector?.(".videoLoading");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "videoLoading is-hidden";
+      el.setAttribute("role", "status");
+      el.setAttribute("aria-live", "polite");
+      el.textContent = "Video loading…";
+      wrap.appendChild(el);
+    }
+    return el;
+  };
+
+  const get = (video) => state.get(video) || null;
+
+  const hide = (video) => {
+    const s = get(video);
+    if (!s?.el) return;
+    s.el.classList.add("is-hidden");
+    if (s.timer) window.clearTimeout(s.timer);
+    s.timer = 0;
+  };
+
+  const schedule = (video, wrap) => {
+    if (!video) return;
+    const el = ensureEl(wrap);
+    if (!el) return;
+    let s = get(video);
+    if (!s) {
+      s = { el, timer: 0 };
+      state.set(video, s);
+
+      // Hide as soon as playback actually starts.
+      video.addEventListener("playing", () => hide(video));
+      // If the user leaves the screen or something interrupts, don’t leave a stale toast up forever.
+      video.addEventListener("ended", () => hide(video));
+      video.addEventListener("error", () => hide(video));
+    } else {
+      s.el = el; // keep in sync if DOM changed
+    }
+
+    if (s.timer) window.clearTimeout(s.timer);
+    s.timer = window.setTimeout(() => {
+      // Show only if we still haven't started playing.
+      if (!video.paused && !video.ended) return;
+      s.el.classList.remove("is-hidden");
+    }, 1000);
+  };
+
+  return { schedule, hide };
+})();
+
+// ---- Smart video loading (sequential, in screen order) ----
+// Goal: start network work from Screen 1 -> Screen N, instead of every <video> racing at once.
+// Playback already starts before full download once `.play()` is called (streaming), so we just ensure
+// sources are assigned and metadata/first frames are buffered ahead of time.
+const SMART_VIDEO_LOADER = (() => {
+  const loaded = new WeakSet(); // video elements we already kicked off
+  let queue = [];
+  let running = false;
+
+  const getSourceEl = (video) => video?.querySelector?.("source") || null;
+
+  const ensureSrcAssigned = (video) => {
+    const source = getSourceEl(video);
+    if (!video || !source) return false;
+    const hasSrc = !!source.getAttribute("src");
+    if (hasSrc) return true;
+    const dataSrc = source.getAttribute("data-src");
+    if (!dataSrc) return false;
+    source.setAttribute("src", dataSrc);
+    // Keep data-src so future tooling can still see the intended order.
+    return true;
+  };
+
+  const waitForPlayableMetadata = (video, timeoutMs = 2500) =>
+    new Promise((resolve) => {
+      if (!video) return resolve();
+      if (video.readyState >= 1) return resolve(); // HAVE_METADATA
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        video.removeEventListener("loadedmetadata", finish);
+        video.removeEventListener("loadeddata", finish);
+        video.removeEventListener("canplay", finish);
+        resolve();
+      };
+      video.addEventListener("loadedmetadata", finish, { once: true });
+      video.addEventListener("loadeddata", finish, { once: true });
+      video.addEventListener("canplay", finish, { once: true });
+      setTimeout(finish, timeoutMs);
+    });
+
+  const enqueue = (video) => {
+    if (!video || loaded.has(video)) return;
+    queue.push(video);
+  };
+
+  const scanInScreenOrder = (screens) => {
+    queue = [];
+    for (const s of screens) {
+      // Only enqueue videos that have a <source data-src="..."> (i.e. deferred in HTML/JS)
+      const vids = Array.from(s.querySelectorAll("video"));
+      for (const v of vids) {
+        const src = v.querySelector("source[data-src]");
+        if (src) enqueue(v);
+      }
+    }
+  };
+
+  const run = async () => {
+    if (running) return;
+    running = true;
+    while (queue.length) {
+      const v = queue.shift();
+      if (!v || loaded.has(v)) continue;
+      loaded.add(v);
+      try {
+        if (!ensureSrcAssigned(v)) continue;
+        // Hint: preload metadata/first frames without forcing full download.
+        if (!v.getAttribute("preload")) v.preload = "metadata";
+        v.load();
+        await waitForPlayableMetadata(v);
+      } catch {
+        // Best-effort; continue.
+      }
+    }
+    running = false;
+  };
+
+  const init = (screens) => {
+    scanInScreenOrder(screens);
+    // Kick off after initial render/active-screen setup.
+    setTimeout(run, 0);
+  };
+
+  return { init, ensureSrcAssigned, enqueue, run };
+})();
+
 function getViewportHeight() {
   // `visualViewport.height` is generally more stable on mobile (address bar show/hide).
   return window.visualViewport?.height || window.innerHeight;
@@ -177,6 +322,16 @@ function setActiveIndex(next) {
   if (impactIdx !== -1 && ACTIVE !== impactIdx && IMPACT_UI?.hideTooltip) IMPACT_UI.hideTooltip();
 
   // Revenue animation runs via CSS when screen is active; nothing else required.
+
+  // Pause any videos not in the active screen (prevents offscreen autoplay burning CPU).
+  try {
+    for (const v of Array.from(document.querySelectorAll("video"))) {
+      if (active && active.contains(v)) continue;
+      // Don't fight the brand-hub crossfade load/play logic; it will resume when its screen activates.
+      try { v.pause(); } catch {}
+      VIDEO_LOADING.hide(v);
+    }
+  } catch {}
 }
 
 let openingTimers = [];
@@ -666,6 +821,7 @@ function setupVideo() {
       // User gesture: allow sound.
       video.muted = false;
       if (soundBtn) setSoundBtnState(soundBtn, video.muted);
+      VIDEO_LOADING.schedule(video, wrap);
       await video.play();
       overlay.classList.add("is-hidden");
     } catch {
@@ -750,6 +906,7 @@ async function attemptVideoPlayWithSound() {
 
     // We *try* with sound; many browsers will block without a gesture.
     PITCH.video.muted = false;
+    VIDEO_LOADING.schedule(PITCH.video, document.getElementById("videoWrap"));
     await PITCH.video.play();
     PITCH?.overlay?.classList.add("is-hidden");
     if (PITCH?.soundBtn) setSoundBtnState(PITCH.soundBtn, PITCH.video.muted);
@@ -770,7 +927,7 @@ async function attemptInterstitialPlayWithSound(screenEl) {
   const rec = INTERSTITIAL_BY_SCREEN.get(screenEl);
   if (!rec?.video) return;
 
-  const { video, overlay, soundBtn } = rec;
+  const { video, overlay, soundBtn, wrap } = rec;
   try {
     // Always restart when entering the screen.
     try {
@@ -780,6 +937,7 @@ async function attemptInterstitialPlayWithSound(screenEl) {
 
     video.muted = false;
     video.volume = 1;
+    VIDEO_LOADING.schedule(video, wrap || screenEl.querySelector(".videoWrap"));
     await video.play();
     overlay?.classList.add("is-hidden");
     if (soundBtn) setSoundBtnState(soundBtn, video.muted);
@@ -788,6 +946,7 @@ async function attemptInterstitialPlayWithSound(screenEl) {
     // and show an overlay to allow a user gesture to enable sound.
     try {
       video.muted = true;
+      VIDEO_LOADING.schedule(video, wrap || screenEl.querySelector(".videoWrap"));
       await video.play();
     } catch {}
     overlay?.classList.remove("is-hidden");
@@ -859,6 +1018,7 @@ function setupInterstitialVideos() {
         video.volume = 1;
         // Restart so it always plays from the top once sound is enabled.
         try { video.currentTime = 0; } catch {}
+        VIDEO_LOADING.schedule(video, wrap || s.querySelector(".videoWrap"));
         await video.play();
         overlay.classList.add("is-hidden");
         if (soundBtn) setSoundBtnState(soundBtn, video.muted);
@@ -946,25 +1106,25 @@ function mountInvestorWidget() {
       <div class="nsc-card" role="group" aria-label="Noble Investor Interest Form">
         <section class="nsc-step nsc-step--active" data-step="1">
           <div class="nsc-actions">
-            <button type="button" class="nsc-btn nsc-primary" data-next>I want to invest</button>
+            <button type="button" class="btn btn--gold nsc-btn nsc-primary" data-next>I want to invest</button>
           </div>
           <div class="nsc-note">Filling out this form is an indication of your interest, not a commitment or offer.</div>
         </section>
         <section class="nsc-step" data-step="2">
           <h2 class="nsc-title">I'm investing as:</h2>
           <div class="nsc-grid-buttons">
-            <button type="button" class="nsc-btn nsc-choice" data-choice="investorType" data-value="Myself">Myself</button>
-            <button type="button" class="nsc-btn nsc-choice" data-choice="investorType" data-value="Entity or Trust">An Entity or Trust</button>
-            <button type="button" class="nsc-btn nsc-choice" data-choice="investorType" data-value="Donor Advised Fund">Donor Advised Fund</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice" data-choice="investorType" data-value="Myself">Myself</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice" data-choice="investorType" data-value="Entity or Trust">An Entity or Trust</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice" data-choice="investorType" data-value="Donor Advised Fund">Donor Advised Fund</button>
           </div>
           <div class="nsc-nav"><button type="button" class="nsc-link" data-back>&larr; Back</button></div>
         </section>
         <section class="nsc-step" data-step="3">
           <h2 class="nsc-title">Select your investment amount</h2>
           <div class="nsc-grid-buttons">
-            <button type="button" class="nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="5000">$5,000</button>
-            <button type="button" class="nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="10000">$10,000</button>
-            <button type="button" class="nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="25000">$25,000</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="5000">$5,000</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="10000">$10,000</button>
+            <button type="button" class="btn btn--ghost nsc-btn nsc-choice nsc-quick" data-choice="amount" data-value="25000">$25,000</button>
           </div>
           <div class="nsc-divider" role="separator" aria-hidden="true"></div>
           <label class="nsc-label" for="nsc-amount-select">Or choose another amount</label>
@@ -1005,7 +1165,7 @@ function mountInvestorWidget() {
             <input id="nsc-phone" class="nsc-input nsc-phone" type="tel" autocomplete="tel" />
           </div>
           <div class="nsc-actions">
-            <button type="button" class="nsc-btn nsc-primary nsc-submit">
+            <button type="button" class="btn btn--gold nsc-btn nsc-primary nsc-submit">
               <span class="nsc-btn-text">Submit</span>
               <span class="nsc-spinner" aria-hidden="true"></span>
             </button>
@@ -1232,6 +1392,8 @@ function bindBrandHub() {
 
   const setBgSrc = async (src) => {
     if (!bgVideo) return;
+    // If the markup deferred the initial source, make sure it gets assigned before swapping.
+    SMART_VIDEO_LOADER.ensureSrcAssigned(bgVideo);
     const current = bgVideo.querySelector("source")?.getAttribute("src");
     if (current === src) return;
     const sourceEl = bgVideo.querySelector("source");
@@ -1398,7 +1560,8 @@ function mountMilestones() {
       v.setAttribute("aria-hidden", "true");
 
       const src = document.createElement("source");
-      src.src = m.media.src;
+      // Defer src so the global video loader can sequence network work.
+      src.setAttribute("data-src", m.media.src);
       src.type = "video/mp4";
       v.appendChild(src);
       mediaWrap.appendChild(v);
@@ -1684,7 +1847,6 @@ function mountProjects() {
   projectsPanel.appendChild(panelsContainer);
 
   let activeIndex = 0;
-  let pinnedIndex = 0; // Pin first item (Endurance) by default
 
   const showTab = (i, immediate = false) => {
     // Hide all panels and update buttons
@@ -1701,6 +1863,16 @@ function mountProjects() {
     // Also update active index for poster
     if (activeIndex !== i) {
       setActive(i);
+    }
+
+    // Hover-to-select should keep the selection "locked" so users can move
+    // from the tab into the panel buttons without the UI reverting.
+    const project = PROJECTS[i];
+    const bgSrc = project ? BG_IMAGES[project.title] : null;
+    if (bgSrc) {
+      setBgImage(bgSrc).catch((err) => {
+        console.warn("Failed to load background image:", bgSrc, err);
+      });
     }
   };
 
@@ -1824,104 +1996,29 @@ function mountProjects() {
     // Don't update background image here - only on hover
   };
 
-  // Set up hover and click handlers for each tab
-  let hoverTimeout;
-  let currentBgTimeout;
-  
-  const fadeOutBg = () => {
-    if (bgImage && bgImage.src) {
-      if (window.gsap) {
-        window.gsap.to(bgImage, { opacity: 0, duration: 0.35, ease: "power2.out" });
-      } else {
-        bgImage.style.opacity = "0";
-      }
-    }
-  };
-  
+  // Hover-to-select: hovering a tab selects and stays selected (no mouseleave revert).
   for (let i = 0; i < itemBtns.length; i++) {
-    const { button, panel } = itemBtns[i];
-    const project = PROJECTS[i];
-    const bgSrc = BG_IMAGES[project.title];
+    const { button } = itemBtns[i];
     
-    // Hover: temporarily show tab and background image
-    button.addEventListener("mouseenter", () => {
-      clearTimeout(hoverTimeout);
-      clearTimeout(currentBgTimeout);
-      
-      // Update active state for poster change
-      setActive(i);
-      
-      // Always show the hovered tab, even if it's pinned
+    // Hover selects
+    button.addEventListener("pointerenter", () => {
       showTab(i);
-      
-      // Show background image for this project
-      if (bgSrc) {
-        setBgImage(bgSrc).catch(err => {
-          console.warn('Failed to load background image:', bgSrc, err);
-        });
-      }
     }, { passive: true });
 
-    // Mouse leave: revert to pinned state and fade out background
-    button.addEventListener("mouseleave", () => {
-      hoverTimeout = setTimeout(() => {
-        if (pinnedIndex >= 0) {
-          showTab(pinnedIndex, true);
-          setActive(pinnedIndex);
-        }
-        // Always fade out background when leaving hover (even if tab is pinned)
-        fadeOutBg();
-      }, 200);
-    }, { passive: true });
-
-    // Click: pin this tab
+    // Click selects (touch / explicit intent)
     button.addEventListener("click", () => {
-      clearTimeout(hoverTimeout);
-      if (pinnedIndex === i) {
-        // Unpin if clicking the same tab
-        pinnedIndex = -1;
-      } else {
-        // Pin this tab
-        pinnedIndex = i;
-        showTab(i, true);
-        setActive(i);
-      }
-      // Always fade out background when clicking (pinning doesn't show background)
-      fadeOutBg();
+      showTab(i, true);
     });
 
-    // Focus: change poster and show tab, also show background (for keyboard navigation)
+    // Focus selects (keyboard navigation)
     button.addEventListener("focus", () => {
-      setActive(i);
       showTab(i);
-      if (bgSrc) {
-        setBgImage(bgSrc).catch(err => {
-          console.warn('Failed to load background image:', bgSrc, err);
-        });
-      }
-    });
-    
-    // Blur: fade out background when focus leaves
-    button.addEventListener("blur", () => {
-      currentBgTimeout = setTimeout(() => {
-        fadeOutBg();
-      }, 200);
     });
   }
 
   // Set initial active state (first item)
   setActive(0, { force: true });
   showTab(0, true);
-  
-  // Don't load initial background image - only show on hover
-  // Ensure background image starts at opacity 0
-  if (bgImage) {
-    if (window.gsap) {
-      window.gsap.set(bgImage, { opacity: 0 });
-    } else {
-      bgImage.style.opacity = "0";
-    }
-  }
 }
 
 // ---- Screen 10: NCN Projects (tabs with video hover) ----
@@ -2010,8 +2107,6 @@ function bindNcnPillars() {
   const arrow = document.getElementById("ncnTabPanelArrow");
   let activeTabIndex = 0;
   let isInitialLoad = true;
-  let isHovering = false;
-  let hoveredTabIndex = null;
 
   const updateArrowPosition = (tabIndex) => {
     if (!arrow || !tabs[tabIndex]) return;
@@ -2037,9 +2132,6 @@ function bindNcnPillars() {
   };
 
   const updateActiveTabVideo = () => {
-    // Only show video for active tab if:
-    // 1. Not initial load (or initial load is complete after first interaction)
-    // 2. Not currently hovering over a different tab
     if (isInitialLoad) {
       // On initial load, don't show video
       if (window.gsap) {
@@ -2047,11 +2139,6 @@ function bindNcnPillars() {
       } else {
         bgVideo.style.opacity = "0";
       }
-      return;
-    }
-
-    if (isHovering && hoveredTabIndex !== null) {
-      // If hovering, the hover handler will manage the video
       return;
     }
 
@@ -2089,24 +2176,6 @@ function bindNcnPillars() {
     updateActiveTabVideo();
   };
 
-  const clearVideo = () => {
-    // Only clear video if not showing active tab video
-    if (isHovering) return;
-    
-    // If initial load, hide video
-    if (isInitialLoad) {
-      if (window.gsap) {
-        window.gsap.to(bgVideo, { opacity: 0, duration: 0.35, ease: "power2.out" });
-      } else {
-        bgVideo.style.opacity = "0";
-      }
-      return;
-    }
-    
-    // Otherwise, show video for active tab
-    updateActiveTabVideo();
-  };
-
   // Set up tab interactions
   for (let i = 0; i < tabs.length; i++) {
     const tab = tabs[i];
@@ -2119,34 +2188,16 @@ function bindNcnPillars() {
       showTab(i);
     });
 
-    // Hover: show video
+    // Hover-to-select: hovering selects and stays selected (so users can move into panel CTAs)
     tab.addEventListener("pointerenter", () => {
-      isHovering = true;
-      hoveredTabIndex = i;
       isInitialLoad = false; // Mark that user has interacted
-      setBgSrc(videoSrc);
+      showTab(i);
     }, { passive: true });
 
-    tab.addEventListener("pointerleave", () => {
-      isHovering = false;
-      hoveredTabIndex = null;
-      // Show video for active tab instead
-      updateActiveTabVideo();
-    }, { passive: true });
-
-    // Focus: show video (for keyboard navigation)
+    // Focus: select (for keyboard navigation)
     tab.addEventListener("focusin", () => {
       isInitialLoad = false; // Mark that user has interacted
-      isHovering = true;
-      hoveredTabIndex = i;
-      setBgSrc(videoSrc);
-    });
-
-    tab.addEventListener("focusout", () => {
-      isHovering = false;
-      hoveredTabIndex = null;
-      // Show video for active tab instead
-      updateActiveTabVideo();
+      showTab(i);
     });
   }
 
@@ -2241,6 +2292,20 @@ function mountImpactOrbit() {
   ring.innerHTML = "";
 
   const getPortraitSize = () => (window.innerWidth <= 720 ? 90 : 120);
+
+  const getConstellationMetrics = () => {
+    const bounds = getBounds();
+    // Oval shape (wider than tall) so it reads more like an orbit, less like a box.
+    const rx = bounds.rx * 0.96;
+    const ry = bounds.ry * 0.78;
+    const maxZ = bounds.depth * 0.32;
+    const exclusion = getCenterExclusion();
+    const portraitSize = getPortraitSize();
+    // Keep portraits farther from center
+    const inner = 0.84;
+    const outer = 0.99;
+    return { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer };
+  };
 
   // Responsive bounds for constellation (in px, centered at 0,0).
   // We keep a margin so portraits don't clip at the orbit edge.
@@ -2452,20 +2517,9 @@ function mountImpactOrbit() {
   // Generate scattered positions (elliptical ring, avoids center content)
   const generateConstellationPositions = (count) => {
     const positions = [];
-    const bounds = getBounds();
-
-    // Oval shape (wider than tall) so it reads more like an orbit, less like a box.
-    const rx = bounds.rx * 0.96;
-    const ry = bounds.ry * 0.78;
-    const maxZ = bounds.depth * 0.32;
-
-    const exclusion = getCenterExclusion();
-    const portraitSize = getPortraitSize();
+    const { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer } = getConstellationMetrics();
     // Target separation (may be impossible for the available ellipse circumference).
     const requestedMinSeparation = portraitSize * 2.75;
-    // Keep portraits farther from center
-    const inner = 0.84; // keep portraits farther from center
-    const outer = 0.99;
 
     const TAU = Math.PI * 2;
 
@@ -2490,8 +2544,8 @@ function mountImpactOrbit() {
     const pushOutOfCenter = (p) => {
       if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
         // Push away from the center box along the dominant axis.
-        const sx = Math.sign(p.x) || (Math.random() < 0.5 ? -1 : 1);
-        const sy = Math.sign(p.y) || (Math.random() < 0.5 ? -1 : 1);
+        const sx = Math.sign(p.x) || -1;
+        const sy = Math.sign(p.y) || 1;
         const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.65;
         const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.65;
         if (dx > dy) p.x += sx * dx;
@@ -2585,22 +2639,15 @@ function mountImpactOrbit() {
       time += 0.016; // ~60fps
       
       // Update portraits with floating animation + enforce non-overlap during motion.
-      const bounds = getBounds();
-      const rx = bounds.rx * 0.96;
-      const ry = bounds.ry * 0.78;
-      const exclusion = getCenterExclusion();
-      const portraitSize = getPortraitSize();
-      const inner = 0.84;
-      const outer = 0.99;
-      const minSep = portraitSize * 1.35; // keep circles from touching while floating
+      const { bounds, rx, ry, exclusion, portraitSize, inner, outer } = getConstellationMetrics();
 
       const maxX = bounds.width * 0.5;
       const maxY = bounds.height * 0.5;
 
-      const pushOutOfCenter = (p) => {
+      const pushOutOfCenter = (p, idx) => {
         if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
-          const sx = Math.sign(p.x) || (Math.random() < 0.5 ? -1 : 1);
-          const sy = Math.sign(p.y) || (Math.random() < 0.5 ? -1 : 1);
+          const sx = Math.sign(p.x) || (idx % 2 === 0 ? -1 : 1);
+          const sy = Math.sign(p.y) || (idx % 3 === 0 ? -1 : 1);
           const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.6;
           const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.6;
           if (dx > dy) p.x += sx * dx;
@@ -2640,34 +2687,17 @@ function mountImpactOrbit() {
         const x = Math.max(-maxX, Math.min(maxX, basePos.x + floatX));
         const y = Math.max(-maxY, Math.min(maxY, basePos.y + floatY));
         const z = basePos.z + floatZ;
+        // Keep an "anchor" so repulsion can't cause portraits to drift into other slots.
         return { i, el: p.el, grabbed: false, x, y, z };
       });
 
-      // Repulsion pass (few iterations is enough for small N).
-      for (let iter = 0; iter < 6; iter++) {
-        for (let a = 0; a < desired.length; a++) {
-          for (let b = a + 1; b < desired.length; b++) {
-            const pa = desired[a];
-            const pb = desired[b];
-            if (pa.grabbed || pb.grabbed) continue;
-            const dx = pb.x - pa.x;
-            const dy = pb.y - pa.y;
-            const d = Math.hypot(dx, dy) || 0.0001;
-            if (d >= minSep) continue;
-            const push = ((minSep - d) / d) * 0.55;
-            const px = dx * push;
-            const py = dy * push;
-            pa.x -= px;
-            pa.y -= py;
-            pb.x += px;
-            pb.y += py;
-          }
-        }
-        for (const p of desired) {
-          if (p.grabbed) continue;
-          pushOutOfCenter(p);
-          projectToAnnulus(p);
-        }
+      // IMPORTANT: No per-frame repulsion.
+      // Runtime evidence showed the repulsion solver was "slot swapping" portraits over time,
+      // producing the perceived random repositioning. We only apply mild constraints.
+      for (const p of desired) {
+        if (p.grabbed) continue;
+        pushOutOfCenter(p, p.i);
+        projectToAnnulus(p);
       }
 
       for (const p of desired) {
@@ -2769,9 +2799,17 @@ function mountImpactOrbit() {
     portrait.style.setProperty("--portrait-z", `${pos.z}px`);
 
     // Create portraitData with base position
+    const { rx: initRx, ry: initRy, maxZ: initMaxZ } = getConstellationMetrics();
     const portraitData = {
       el: portrait,
+      index: i,
       basePosition: { x: pos.x, y: pos.y, z: pos.z },
+      // Keep layout stable across resizes by storing normalized coordinates (ellipse space).
+      seed: {
+        ux: initRx ? pos.x / initRx : 0,
+        uy: initRy ? pos.y / initRy : 0,
+        z: initMaxZ ? clamp(pos.z / initMaxZ, -1, 1) : 0,
+      },
       isGrabbed: false,
       originalX: undefined,
       originalY: undefined,
@@ -2900,13 +2938,48 @@ function mountImpactOrbit() {
 
   // Handle resize - regenerate constellation positions
   const handleResize = () => {
-    const newPositions = generateConstellationPositions(count);
-    portraits.forEach((portraitData, i) => {
-      const pos = newPositions[i];
-      portraitData.basePosition = { x: pos.x, y: pos.y, z: pos.z };
-      portraitData.el.style.setProperty("--portrait-x", `${pos.x}px`);
-      portraitData.el.style.setProperty("--portrait-y", `${pos.y}px`);
-      portraitData.el.style.setProperty("--portrait-z", `${pos.z}px`);
+    const { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer } = getConstellationMetrics();
+    if (!bounds.rx || !bounds.ry) return;
+
+    const pushOutOfCenterDeterministic = (p, idx) => {
+      if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
+        const sx = Math.sign(p.x) || (idx % 2 === 0 ? -1 : 1);
+        const sy = Math.sign(p.y) || (idx % 3 === 0 ? -1 : 1);
+        const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.65;
+        const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.65;
+        if (dx > dy) p.x += sx * dx;
+        else p.y += sy * dy;
+      }
+    };
+
+    const projectToAnnulus = (p) => {
+      const ux = p.x / rx;
+      const uy = p.y / ry;
+      const mag = Math.hypot(ux, uy) || 1;
+      let t = mag;
+      if (t < inner) t = inner;
+      if (t > outer) t = outer;
+      const k = t / mag;
+      p.x = ux * k * rx;
+      p.y = uy * k * ry;
+      p.x = clamp(p.x, -bounds.rx, bounds.rx);
+      p.y = clamp(p.y, -bounds.ry, bounds.ry);
+    };
+
+    portraits.forEach((portraitData) => {
+      const seed = portraitData.seed || { ux: 0, uy: 0, z: 0 };
+      const next = {
+        x: seed.ux * rx,
+        y: seed.uy * ry,
+        z: clamp(seed.z * maxZ, -maxZ, maxZ),
+      };
+      pushOutOfCenterDeterministic(next, portraitData.index ?? 0);
+      projectToAnnulus(next);
+
+      portraitData.basePosition = { x: next.x, y: next.y, z: next.z };
+      portraitData.el.style.setProperty("--portrait-x", `${next.x}px`);
+      portraitData.el.style.setProperty("--portrait-y", `${next.y}px`);
+      portraitData.el.style.setProperty("--portrait-z", `${next.z}px`);
     });
     repositionActiveTooltip();
   };
@@ -2967,4 +3040,7 @@ window.addEventListener("keydown", onKeyDown);
 
 // Initial render
 onScroll();
+
+// Start sequential video preloading after first render.
+SMART_VIDEO_LOADER.init(SCREENS);
 

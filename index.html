@@ -17,7 +17,7 @@
     <!-- Mobile Gate -->
     <div class="mobileGate" id="mobileGate">
       <div class="mobileGate__content">
-        <img class="mobileGate__image" src="./assets/adam.png" alt="Adam" />
+        <img class="mobileGate__image" src="./assets/adam.jpg" alt="Adam" />
         <h1 class="mobileGate__title">Uh, oh Adam!</h1>
         <p class="mobileGate__message">
           This pitch deck is meant to be viewed on a computer, not a mobile device. Please open the link on your computer.
@@ -99,7 +99,7 @@
               preload="metadata"
               poster="./assets/pitch-poster.svg"
             >
-              <source src="./assets/PitchVideo.mp4" type="video/mp4" />
+              <source data-src="./assets/PitchVideo.mp4" type="video/mp4" />
             </video>
 
             <button class="videoOverlay" id="videoOverlay" type="button">
@@ -143,7 +143,7 @@
               loop
               preload="metadata"
             >
-              <source src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
+              <source data-src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
             </video>
             <div class="brandHub__bgOverlay" aria-hidden="true"></div>
           </div>
@@ -215,7 +215,6 @@
               </div>
               <p class="p">
                 Noble Story Co. is a production company that acquires and develops valuable feature film intellectual properties.
-                Noble does not finance feature film production or P&amp;A; only development.
               </p>
               <div class="revStreams" aria-label="Noble Story Co. revenue streams">
                 <div class="revStreams__k">Revenue Streams</div>
@@ -254,7 +253,7 @@
                 </div>
               </div>
               <p class="p">
-                Noble Creator Network (a DBA of Noble Story Co.) provides production services and financing to YouTube creators. High level of cultural impact relative to investment.
+                Noble Creator Network (a DBA of Noble Story Co.) provides production services and financing to YouTube creators.
               </p>
               <div class="revStreams" aria-label="Noble Creator Network revenue streams">
                 <div class="revStreams__k">Revenue Streams</div>
@@ -503,7 +502,7 @@
                 </div>
 
                 <div class="teamInfo teamInfo--board" data-team-panel="board" aria-hidden="true">
-                  <p class="p max subtle">
+                  <p class="p max">
                     Our executive team is supported by an advisory board. Board chair <strong>Mark Holman</strong> is the 
                     Chairman of global pharmaceutical company Expanesthetics and former owner of an independent
                     production company. <strong>Dana Wichterman</strong> is a founding members of Wedgwood Circle, and is active in
@@ -570,7 +569,7 @@
             </div>
             <div class="term">
               <div class="term__k">Governance</div>
-              <div class="term__v">Non-voting preferred equity • Managed by Board of Managers under Operating Agreement</div>
+              <div class="term__v">Non-voting preferred equity • Manager-managed LLC</div>
             </div>
           </div>
         </div>
@@ -588,11 +587,11 @@
             </div>
             <div class="term">
               <div class="term__k">Secondary</div>
-              <div class="term__v">Potential buyout by a long-term, mission-aligned buyer</div>
+              <div class="term__v">Potential buyout by a long-term, mission-aligned partner</div>
             </div>
             <div class="term">
-              <div class="term__k">No plans</div>
-              <div class="term__v">No plans for IPO or venture-style exit</div>
+              <div class="term__k">IPO</div>
+              <div class="term__v">We have no plans for an IPO or venture-style exit</div>
             </div>
           </div>
         </div>
@@ -603,7 +602,7 @@
         <div class="frame frame--full">
           <div class="videoWrap">
             <video class="video" playsinline autoplay preload="metadata">
-              <source src="./assets/endurance_teaser_master_v1%20(720p).mp4" type="video/mp4" />
+              <source data-src="./assets/endurance_teaser_master_v1%20(720p).mp4" type="video/mp4" />
             </video>
             <button class="videoOverlay interstitialOverlay is-hidden" type="button" aria-label="Enable sound">
               <div class="videoOverlay__title">Sound is off</div>
@@ -708,7 +707,7 @@
         <div class="frame frame--full">
           <div class="videoWrap">
             <video class="video" playsinline autoplay preload="metadata">
-              <source src="./assets/I%27m%20starting%20a%20HISTORY%20YouTube%20Channel.mp4" type="video/mp4" />
+              <source data-src="./assets/I%27m%20starting%20a%20HISTORY%20YouTube%20Channel.mp4" type="video/mp4" />
             </video>
             <button class="videoOverlay interstitialOverlay is-hidden" type="button" aria-label="Enable sound">
               <div class="videoOverlay__title">Sound is off</div>
@@ -748,7 +747,7 @@
             loop
             preload="metadata"
           >
-            <source src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
+            <source data-src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
           </video>
           <div class="ncnProjectsScreen__bgOverlay" aria-hidden="true"></div>
         </div>
@@ -769,27 +768,27 @@
             <div class="ncnTabs__list" role="tablist" aria-label="NCN Projects">
               <button class="ncnTab reveal" type="button" role="tab" aria-selected="true" aria-controls="ncn-panel-top-of-class" id="ncn-tab-top-of-class" data-pillar="top-of-class">
                 <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
-                  <source src="./assets/TOTCbg.mp4" type="video/mp4" />
+                  <source data-src="./assets/TOTCbg.mp4" type="video/mp4" />
                 </video>
                 <span class="ncnTab__label">TOP OF THE CLASS</span>
               </button>
               <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-history" id="ncn-tab-history" data-pillar="history">
                 <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
-                  <source src="./assets/LoconteBG.mp4" type="video/mp4" />
+                  <source data-src="./assets/LoconteBG.mp4" type="video/mp4" />
                 </video>
                 <span class="ncnTab__label">HISTORY AND THE HUMAN STORY</span>
               </button>
               <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-coffee" id="ncn-tab-coffee" data-pillar="coffee">
                 <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
-                  <source src="./assets/StephenBG.mp4" type="video/mp4" />
+                  <source data-src="./assets/StephenBG.mp4" type="video/mp4" />
                 </video>
                 <span class="ncnTab__label">IT'S ONLY COFFEE</span>
               </button>
               <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-faith-tech" id="ncn-tab-faith-tech" data-pillar="faith-tech">
                 <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
-                  <source src="./assets/FandT.mp4" type="video/mp4" />
+                  <source data-src="./assets/FandT.mp4" type="video/mp4" />
                 </video>
-                <span class="ncnTab__label">Faith &amp; Tech</span>
+                <span class="ncnTab__label">FAITH &amp; TECH</span>
               </button>
             </div>
 
@@ -806,6 +805,9 @@
                   We’ve produced a pilot episode (linked above), and have secured $550,000 of the $750,000 production
                   budget for Season 1.
                 </p>
+                <div class="ncnTabPanel__links">
+                  <a class="btn btn--ghost ncnTabPanel__link" href="https://www.youtube.com/@Topoftheclassshow" target="_blank" rel="noopener noreferrer">View Channel</a>
+                </div>
               </div>
 
               <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-history" aria-labelledby="ncn-tab-history" aria-hidden="true">
@@ -824,6 +826,9 @@
                   financed largely by brand sponsors. To date, the channel has received upwards of $150,000 in brand
                   sponsor deals and $60,000 in grant funds.
                 </p>
+                <div class="ncnTabPanel__links">
+                  <a class="btn btn--ghost ncnTabPanel__link" href="https://www.youtube.com/@JoeLoconte" target="_blank" rel="noopener noreferrer">View Channel</a>
+                </div>
               </div>
 
               <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-coffee" aria-labelledby="ncn-tab-coffee" aria-hidden="true">
@@ -838,6 +843,9 @@
                   of content and the audience. One of our latest videos (linked above) grew faster and farther than we
                   anticipated, with nearly 10,000 views to date
                 </p>
+                <div class="ncnTabPanel__links">
+                  <a class="btn btn--ghost ncnTabPanel__link" href="https://www.youtube.com/@itsonlycoffeeshow" target="_blank" rel="noopener noreferrer">View Channel</a>
+                </div>
               </div>
 
               <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-faith-tech" aria-labelledby="ncn-tab-faith-tech" aria-hidden="true">
@@ -853,6 +861,9 @@
                   We’ve produced five episodes of the podcast so far, with three more slated for release before the end
                   of the year.
                 </p>
+                <div class="ncnTabPanel__links">
+                  <a class="btn btn--ghost ncnTabPanel__link" href="https://www.youtube.com/@FaithandTechPod" target="_blank" rel="noopener noreferrer">View Channel</a>
+                </div>
               </div>
             </div>
           </div>
@@ -974,7 +985,7 @@
       <section class="screen" data-screen="15" aria-label="Call to action">
         <div class="frame frame--wide">
           <div class="kicker">Call to Action</div>
-          <h2 class="h2">Widget to indicate investment interest</h2>
+          <h2 class="h2">Indicate your investment interest</h2>
           <div id="investMount"></div>
         </div>
       </section>
