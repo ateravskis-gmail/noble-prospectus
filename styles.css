@@ -2174,7 +2174,8 @@ body.chrome-hidden .topProgress{opacity:0}
   box-sizing:border-box;
 }
 .mobileGate__image{
-  width:min(280px, 70vw);
+  width:min(200px, 60vw);
+  max-width:200px;
   height:auto;
   border-radius:20px;
   box-shadow:0 24px 60px rgba(0,0,0,.45);
@@ -2219,22 +2220,29 @@ body.chrome-hidden .topProgress{opacity:0}
   .mobileGate{
     display:flex;
   }
-  /* Prevent body scroll when mobile gate is shown */
+  /* Prevent body and html scroll when mobile gate is shown */
+  html,
   body{
-    overflow:hidden;
+    overflow:hidden !important;
     position:fixed;
     width:100%;
     height:100%;
+    margin:0;
+    padding:0;
   }
-  /* Hide main content when mobile gate is visible */
+  /* Hide main content when mobile gate is visible - use display:none to stop animations */
   .baseBg,
   .bgTheme,
   .topProgress,
   .chrome,
   .stage,
-  .scrollRail{
-    visibility:hidden;
-    pointer-events:none;
+  .scrollRail,
+  .vignette,
+  .grain,
+  .spotlight{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
   }
 }
 
