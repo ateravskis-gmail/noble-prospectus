@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="g1" cx="45%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="65%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="35%" cy="82%" r="90%">
+      <stop offset="0%" stop-color="#F0AF2D" stop-opacity="0.18"/>
+      <stop offset="70%" stop-color="#F0AF2D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#242424"/>
+      <stop offset="100%" stop-color="#1A1A1A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#g3)"/>
+  <rect width="1600" height="900" fill="url(#g1)"/>
+  <rect width="1600" height="900" fill="url(#g2)"/>
+
+  <g opacity="0.16">
+    <path d="M120 760 C 400 640, 640 800, 920 690 C 1200 580, 1360 700, 1480 640" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <path d="M80 700 C 360 590, 650 770, 940 650 C 1230 530, 1400 660, 1520 600" fill="none" stroke="#F0AF2D" stroke-width="3"/>
+  </g>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" fill="#fff">
+    <text x="120" y="170" font-size="22" letter-spacing="6" opacity="0.85">MILESTONE</text>
+    <text x="120" y="250" font-size="78" font-weight="800" letter-spacing="-1">THE HEART MENDER</text>
+    <text x="120" y="320" font-size="28" opacity="0.80">Financing secured</text>
+    <rect x="120" y="370" width="360" height="2" fill="#F0AF2D" opacity="0.9"/>
+
+    <text x="120" y="450" font-size="34" font-weight="700" opacity="0.92">$1.25M raised</text>
+    <text x="120" y="500" font-size="22" opacity="0.78">WWII feature " Talent attached</text>
+  </g>
+
+  <g opacity="0.09">
+    <rect x="1120" y="130" width="360" height="520" rx="34" fill="#000"/>
+    <rect x="1150" y="160" width="300" height="460" rx="26" fill="#FFFFFF"/>
+  </g>
+</svg>

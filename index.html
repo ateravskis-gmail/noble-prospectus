@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Noble — Pitch Deck</title>
+    <meta
+      name="description"
+      content="Noble exists to change culture by telling good, true, and beautiful stories."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="sr-only sr-only--focusable" href="#stage">Skip to content</a>
+
+    <div class="baseBg" aria-hidden="true"></div>
+    <div class="bgTheme" aria-hidden="true"></div>
+
+    <div class="topProgress" aria-hidden="true">
+      <div class="topProgress__bar" id="progressBar"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+    <header id="chrome" class="chrome">
+      <div class="brand" aria-label="Noble Pitch Deck">
+        <img
+          class="brand__logo"
+          src="./assets/Noble%20Wordmark%20White.png"
+          alt="Noble"
+          decoding="async"
+          loading="eager"
+        />
+      </div>
+
+      <div class="chrome__right">
+        <nav class="navDots" id="navDots" aria-label="Slides"></nav>
+      </div>
+    </header>
+
+    <!-- Fixed Stage: screens do not move; scroll selects the active screen -->
+    <main id="stage" class="stage" aria-live="polite">
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+      <div class="spotlight" id="spotlight" aria-hidden="true"></div>
+
+      <!-- 0 -->
+      <section class="screen is-active" data-screen="0" aria-label="Opening" data-reveal-stagger="1500">
+        <div class="frame frame--opening">
+          <div class="openingVerse" id="openingVerse">
+            <div class="kicker">Philippians 4:8</div>
+            <h1 class="display">
+              <span class="verseLine reveal reveal--slow">Finally, brothers and sisters,</span>
+              <span class="verseLine reveal reveal--slow">
+                whatever is true, whatever is <span class="verseNoble">noble</span>…
+              </span>
+              <span class="verseLine reveal reveal--slow">think about such things.</span>
+            </h1>
+          </div>
+
+          <div class="openingMission" id="openingMission" aria-hidden="true">
+            <h2 class="h2 openingMission__headline">
+              <span class="openingMission__line">Noble exists because we believe</span>
+              <span class="openingMission__line">
+                <span class="gold">good, true, and beautiful</span> stories will change culture.
+              </span>
+            </h2>
+            <div class="ctaRow">
+              <button class="btn btn--gold" data-go="1">Enter Story</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1 -->
+      <section class="screen screen--video screen--chromeHidden" data-screen="1" aria-label="Pitch video">
+        <div class="frame frame--full">
+          <div class="videoWrap" id="videoWrap">
+            <video
+              id="pitchVideo"
+              class="video"
+              playsinline
+              preload="metadata"
+              poster="./assets/pitch-poster.svg"
+            >
+              <source src="./assets/PitchVideo.mp4" type="video/mp4" />
+            </video>
+
+            <button class="videoOverlay" id="videoOverlay" type="button">
+            </button>
+
+            <div class="cursorTime" id="cursorTime" aria-hidden="true">
+              <span id="cursorTimeText">0:00 / 0:00</span>
+              <span class="cursorTime__skip">Click to Skip</span>
+            </div>
+
+            <button class="videoSoundBtn is-muted" id="pitchSoundBtn" type="button" aria-label="Unmute">
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M3 10v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8V5.8c0-.82-.92-1.29-1.58-.8l-4 3H5c-1.1 0-2 .9-2 2zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+                />
+              </svg>
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.19l2.45 2.45c.03-.2.05-.4.05-.61zM19 12c0 .94-.2 1.82-.55 2.63l1.51 1.51C20.63 14.93 21 13.51 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l5 5H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8v-6.73l4.15 4.15c-.7.55-1.5.98-2.43 1.26v2.06c1.46-.33 2.79-1.02 3.89-1.95L19.73 21 21 19.73 4.27 3zM12 5.8v3.67L9.23 6.7 12 5.8z"
+                />
+              </svg>
+            </button>
+
+            <button class="skipBtn" id="skipBtn" type="button">Skip</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="screen" data-screen="2" aria-label="Brand overview">
+        <div class="frame frame--center brandHub" id="brandHub">
+          <div class="brandHub__bg" aria-hidden="true">
+            <video
+              id="brandBgVideo"
+              class="brandHub__bgVideo"
+              playsinline
+              autoplay
+              muted
+              loop
+              preload="metadata"
+            >
+              <source src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
+            </video>
+            <div class="brandHub__bgOverlay" aria-hidden="true"></div>
+          </div>
+
+          <img
+            class="brandHub__wordmark"
+            src="./assets/Noble%20Wordmark%20White.png"
+            alt="Noble"
+            decoding="async"
+            loading="eager"
+          />
+          <p class="p brandHub__sub">
+            <span class="brandHub__subAccent">An entertainment company</span> telling good, true, and beautiful stories.
+          </p>
+
+          <div class="brandHub__choices" role="group" aria-label="Choose a Noble brand">
+            <button class="brandPick" type="button" data-brand="story" aria-label="Noble Story Co.">
+              <img
+                class="brandPick__logo"
+                src="./assets/NobleStoryCo_White.png"
+                alt="Noble Story Co."
+                decoding="async"
+                loading="lazy"
+              />
+              <div class="brandPick__panel" aria-hidden="true">
+                <div class="brandPick__tag">IMPACTFUL STORIES. MASSIVE SCREENS.</div>
+                <div class="brandPick__desc">Prestige theatrical releases and premium streaming.</div>
+              </div>
+            </button>
+
+            <button class="brandPick" type="button" data-brand="ncn" aria-label="Noble Creator Network">
+              <img
+                class="brandPick__logo"
+                src="./assets/NCN%20Logo%20-%20White.png"
+                alt="Noble Creator Network"
+                decoding="async"
+                loading="lazy"
+              />
+              <div class="brandPick__panel" aria-hidden="true">
+                <div class="brandPick__tag">HUGE IMPACT. SMALL SCREENS.</div>
+                <div class="brandPick__desc">Culture-defining storytelling on YouTube, the world's largest video platform.</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section class="screen" data-screen="3" aria-label="Business models">
+        <div class="frame frame--wide">
+          <div class="kicker">Business Models</div>
+          <h2 class="h2">Two engines. One mission.</h2>
+          <div class="cards">
+            <article class="card tilt" data-tilt>
+              <div class="card__head">
+                <div class="card__title">
+                  <img
+                    class="brandInlineLogo brandInlineLogo--story"
+                    src="./assets/NobleStoryCo_White.png"
+                    alt="Noble Story Co."
+                    decoding="async"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="card__tags" aria-label="Noble Story Co. categories">
+                  <div class="card__tag">Intellectual Property</div>
+                  <div class="card__tag">Production Services</div>
+                </div>
+              </div>
+              <p class="p">
+                Noble Story Co. is a production company that acquires and develops valuable feature film intellectual properties.
+                Noble does not finance feature film production or P&amp;A; only development.
+              </p>
+              <div class="revStreams" aria-label="Noble Story Co. revenue streams">
+                <div class="revStreams__k">Revenue Streams</div>
+                <div class="revStreams__list" role="list">
+                  <span class="revStreams__pill" role="listitem">IP Sales</span>
+                  <span class="revStreams__pill" role="listitem">IP Library Revenue</span>
+                  <span class="revStreams__pill" role="listitem">Producer Fees</span>
+                  <span class="revStreams__pill" role="listitem">Profit Sharing (Box Office and Ancillary Windows)</span>
+                  <span class="revStreams__pill" role="listitem">Streaming Bonuses</span>
+                  <span class="revStreams__pill" role="listitem">Contract Work</span>
+                </div>
+              </div>
+              <div class="achvBadges" aria-label="Noble Story Co. achievements">
+                <div class="achvBadges__k">Achievements</div>
+                <div class="achvBadges__row" role="list">
+                  <span class="achvBadge" role="listitem">Signed $1M+ studio deal</span>
+                  <span class="achvBadge" role="listitem">Raised $1.25M Equity for The Heart Mender</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card tilt" data-tilt>
+              <div class="card__head">
+                <div class="card__title">
+                  <img
+                    class="brandInlineLogo brandInlineLogo--ncn"
+                    src="./assets/NCN%20Logo%20-%20White.png"
+                    alt="Noble Creator Network"
+                    decoding="async"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="card__tags" aria-label="Noble Creator Network categories">
+                  <div class="card__tag">Production Services</div>
+                  <div class="card__tag">Financing</div>
+                </div>
+              </div>
+              <p class="p">
+                Noble Creator Network (a DBA of Noble Story Co.) provides production services and financing to YouTube creators. High level of cultural impact relative to investment.
+              </p>
+              <div class="revStreams" aria-label="Noble Creator Network revenue streams">
+                <div class="revStreams__k">Revenue Streams</div>
+                <div class="revStreams__list" role="list">
+                  <span class="revStreams__pill" role="listitem">Google AdSense (rev share)</span>
+                  <span class="revStreams__pill" role="listitem">Producer Fees</span>
+                  <span class="revStreams__pill" role="listitem">Post-production Fees</span>
+                  <span class="revStreams__pill" role="listitem">Contract Work</span>
+                  <span class="revStreams__pill" role="listitem">Brand Sponsor Finder&#39;s Fees</span>
+                  <span class="revStreams__pill" role="listitem">Financing Interest</span>
+                  <span class="revStreams__pill" role="listitem">Live Events</span>
+                </div>
+              </div>
+              <div class="achvBadges" aria-label="Noble Creator Network achievements">
+                <div class="achvBadges__k">Achievements</div>
+                <div class="achvBadges__row" role="list">
+                  <span class="achvBadge" role="listitem">$200K revenue since Aug 2024</span>
+                  <span class="achvBadge" role="listitem">1M+ total video views</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section class="screen" data-screen="4" aria-label="Revenue growth">
+        <div class="frame frame--wide">
+          <div class="kicker">Revenue</div>
+          <h2 class="h2">
+            Because of the support of our shareholders, we are on track to see nearly 5x YoY growth.
+          </h2>
+          <p class="p max">
+            In 2025, we generated <span class="gold">$212,614</span> in actual revenue with an additional
+            <span class="gold">$40,000</span> under contract, for a total of <span class="gold">$252,614</span>.
+            For context, we generated <span class="gold">$64,662</span> in 2024. This year, we estimate revenue to
+            reach <span class="gold">$1.5M</span>.
+          </p>
+          <div class="rev">
+            <div class="rev__chart" id="revChart" aria-label="Revenue chart">
+              <div class="revBar" style="--h: 10" data-year="2024" data-value="$64,662"></div>
+              <div
+                class="revBar revBar--stack"
+                style="--h: 38; --contract: 15.84"
+                data-year="2025"
+                data-value="$252,614"
+                title="2025: $212,614 actual + $40,000 under contract"
+              >
+                <div class="revBar__contract" aria-hidden="true"></div>
+              </div>
+              <div class="revBar revBar--proj" style="--h: 88" data-year="2026" data-value="$1.5M (proj)"></div>
+            </div>
+            <div class="rev__legend">
+              <div class="rev__pill"><span class="dot"></span> Actual</div>
+              <div class="rev__pill"><span class="dot dot--contract"></span> Under contract</div>
+              <div class="rev__pill"><span class="dot dot--proj"></span> Projection</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 -->
+      <section class="screen" data-screen="5" aria-label="Milestones">
+        <div class="frame frame--wide">
+          <div class="kicker">Milestones</div>
+          <h2 class="h2">Powerful Momentum</h2>
+          <div class="milestones">
+            <div class="milestonesMedia reveal" aria-label="Milestone media">
+              <div class="milestonesMedia__stage" id="milestonesMediaStage" aria-hidden="true"></div>
+              <div class="milestonesMedia__meta" id="milestonesMediaMeta" aria-hidden="true"></div>
+            </div>
+
+            <div class="milestonesPanel">
+              <div class="milestonesList reveal" id="milestonesList" role="listbox" aria-label="Milestones"></div>
+              <div class="milestonesHint subtle">Hover or focus a milestone to preview</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section class="screen" data-screen="6" aria-label="Our team">
+        <div class="frame frame--wide">
+          <div class="kicker">Noble Story Co.</div>
+          <h2 class="h2">Leadership Team and Advisors</h2>
+
+          <div class="teamBlock is-info-open" id="teamBlock">
+            <div class="teamStrip reveal" aria-label="Team portraits">
+              <div class="teamStrip__group teamStrip__group--founders" data-team-side="founders" aria-label="Founders">
+              <figure class="teamPortrait" tabindex="0">
+                <img
+                  class="teamPortrait__img"
+                  src="assets/team/Andrew_NSC_Headshot_BW_Web.jpg"
+                  alt="Andrew Teravskis"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a
+                  class="teamPortrait__li"
+                  href="https://www.linkedin.com/in/andrew-teravskis-b4195bb5/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Andrew Teravskis on LinkedIn (opens in a new tab)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-10h3v1.528c1.396-2.586 7-2.777 7 2.476v5.996z"
+                    />
+                  </svg>
+                </a>
+                <figcaption class="teamPortrait__cap">
+                  <div class="teamPortrait__name">Andrew Teravskis</div>
+                  <div class="teamPortrait__role">Co-CEO</div>
+                </figcaption>
+              </figure>
+
+              <figure class="teamPortrait" tabindex="0">
+                <img
+                  class="teamPortrait__img"
+                  src="assets/team/Adam_NCS_Headshot_Hat_BW.jpg"
+                  alt="Adam Gregory"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a
+                  class="teamPortrait__li"
+                  href="https://www.linkedin.com/in/noble-adam-gregory/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Adam Gregory on LinkedIn (opens in a new tab)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-10h3v1.528c1.396-2.586 7-2.777 7 2.476v5.996z"
+                    />
+                  </svg>
+                </a>
+                <figcaption class="teamPortrait__cap">
+                  <div class="teamPortrait__name">Adam Gregory</div>
+                  <div class="teamPortrait__role">Co-CEO</div>
+                </figcaption>
+              </figure>
+            </div>
+
+            <div class="teamStrip__divider" aria-hidden="true"></div>
+
+              <div class="teamStrip__group teamStrip__group--board" data-team-side="board" aria-label="Advisory board">
+              <figure class="teamPortrait" tabindex="0">
+                <img
+                  class="teamPortrait__img"
+                  src="assets/team/mark-holman.jpeg"
+                  alt="Mark Holman"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a
+                  class="teamPortrait__li"
+                  href="https://www.linkedin.com/in/mholmanexpanesthetics/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Mark Holman on LinkedIn (opens in a new tab)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-10h3v1.528c1.396-2.586 7-2.777 7 2.476v5.996z"
+                    />
+                  </svg>
+                </a>
+                <figcaption class="teamPortrait__cap">
+                  <div class="teamPortrait__name">Mark Holman</div>
+                  <div class="teamPortrait__role">Advisory Chair</div>
+                </figcaption>
+              </figure>
+
+              <figure class="teamPortrait" tabindex="0">
+                <img
+                  class="teamPortrait__img"
+                  src="assets/team/dana-wichterman.webp"
+                  alt="Dana Wichterman"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a
+                  class="teamPortrait__li"
+                  href="https://www.linkedin.com/in/dana-wichterman-4b4b581bb/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Dana Wichterman on LinkedIn (opens in a new tab)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-10h3v1.528c1.396-2.586 7-2.777 7 2.476v5.996z"
+                    />
+                  </svg>
+                </a>
+                <figcaption class="teamPortrait__cap">
+                  <div class="teamPortrait__name">Dana Wichterman</div>
+                  <div class="teamPortrait__role">Advisor</div>
+                </figcaption>
+              </figure>
+
+              <figure class="teamPortrait" tabindex="0">
+                <img
+                  class="teamPortrait__img"
+                  src="assets/team/raymond-harris-lead.jpg"
+                  alt="Raymond Harris"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <a
+                  class="teamPortrait__li"
+                  href="https://www.linkedin.com/in/raymond-h-harris-800b7617/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Raymond Harris on LinkedIn (opens in a new tab)"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 11.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-10h3v1.528c1.396-2.586 7-2.777 7 2.476v5.996z"
+                    />
+                  </svg>
+                </a>
+                <figcaption class="teamPortrait__cap">
+                  <div class="teamPortrait__name">Raymond Harris</div>
+                  <div class="teamPortrait__role">Advisor</div>
+                </figcaption>
+              </figure>
+            </div>
+            </div>
+
+            <div class="teamInfoCard" aria-live="polite" aria-atomic="true">
+              <div class="teamInfoCard__inner">
+                <div class="teamInfo teamInfo--founders is-active" data-team-panel="founders" aria-hidden="false">
+                  <p class="p max">
+                    <strong>Andrew Teravskis</strong> and <strong>Adam Gregory</strong> are the co-CEOs of Noble. Shortly after launching, they secured
+                    development capital and acquired rights to several world-class stories including the Cedric King
+                    story (ENDURANCE) and the Andy Andrews novel THE HEART MENDER. In 2022, they extended their
+                    development financing capabilities by partnering with executive producer <strong>Raymond Harris</strong>. In 2025,
+                    they launched Noble Creator Network, a platform for investing in and supporting YouTube creators.
+                  </p>
+                </div>
+
+                <div class="teamInfo teamInfo--board" data-team-panel="board" aria-hidden="true">
+                  <p class="p max subtle">
+                    Our executive team is supported by an advisory board. Board chair <strong>Mark Holman</strong> is the 
+                    Chairman of global pharmaceutical company Expanesthetics and former owner of an independent
+                    production company. <strong>Dana Wichterman</strong> is a founding members of Wedgwood Circle, and is active in
+                    influencing culture through public policy and the arts. <strong>Raymond Harris</strong> is an executive producer,
+                    founder of one of the largest architectural firms in the US, and serves on the Board of Directors
+                    for the Come and See Foundation, the non-profit sponsor of THE CHOSEN.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section class="screen" data-screen="7" aria-label="The ask and terms">
+        <div class="frame frame--wide">
+          <div class="kicker">The Ask</div>
+          <div class="ask">
+            <div class="ask__left">
+              <div class="ask__big">$300,000</div>
+              <div class="ask__sub">Raising</div>
+            </div>
+            <div class="ask__right">
+              <div class="ask__big gold">$79K</div>
+              <div class="ask__sub">Secured to date</div>
+            </div>
+          </div>
+
+          <div class="kicker kicker--tight">The Terms</div>
+          <div class="terms">
+            <div class="term">
+              <div class="term__k">Security</div>
+              <div class="term__v">Series B Preferred Units in Noble Story Co. LLC #1</div>
+            </div>
+            <div class="term">
+              <div class="term__k">Stage</div>
+              <div class="term__v">
+                Post-revenue media &amp; IP company • ~5× year-over-year revenue growth (2025) • Scaling operations and
+                content portfolio
+              </div>
+            </div>
+            <div class="term">
+              <div class="term__k">Use of Capital</div>
+              <div class="term__v">
+                Expansion of revenue-generating content and IP • Production, distribution, and working capital
+              </div>
+            </div>
+            <div class="term">
+              <div class="term__k">Preferred Return</div>
+              <div class="term__v">
+                110% preferred return on invested capital • Paid before any distributions to common equity
+              </div>
+            </div>
+            <div class="term">
+              <div class="term__k">Distribution Priority</div>
+              <div class="term__v">
+                Series A Preferred (115% return) → Series B Preferred (110% return) → Common equity → Pro-rata participation thereafter
+              </div>
+            </div>
+            <div class="term">
+              <div class="term__k">Participation</div>
+              <div class="term__v">Series B participates pro rata after preferred return is satisfied</div>
+            </div>
+            <div class="term">
+              <div class="term__k">Governance</div>
+              <div class="term__v">Non-voting preferred equity • Managed by Board of Managers under Operating Agreement</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section class="screen" data-screen="8" aria-label="Exit strategy">
+        <div class="frame frame--wide">
+          <div class="kicker">Exit Strategy</div>
+          <h2 class="h2">Liquidity approach</h2>
+          <div class="terms">
+            <div class="term">
+              <div class="term__k">Primary</div>
+              <div class="term__v">Return of capital with premium via distributions from operating cash flow</div>
+            </div>
+            <div class="term">
+              <div class="term__k">Secondary</div>
+              <div class="term__v">Potential buyout by a long-term, mission-aligned buyer</div>
+            </div>
+            <div class="term">
+              <div class="term__k">No plans</div>
+              <div class="term__v">No plans for IPO or venture-style exit</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section class="screen screen--video screen--chromeHidden screen--interstitial" data-screen="9" aria-label="Endurance teaser">
+        <div class="frame frame--full">
+          <div class="videoWrap">
+            <video class="video" playsinline autoplay preload="metadata">
+              <source src="./assets/endurance_teaser_master_v1%20(720p).mp4" type="video/mp4" />
+            </video>
+            <button class="videoOverlay interstitialOverlay is-hidden" type="button" aria-label="Enable sound">
+              <div class="videoOverlay__title">Sound is off</div>
+              <div class="videoOverlay__hint">Tap to play with sound</div>
+            </button>
+            <div class="cursorTime" aria-hidden="true">
+              <span class="cursorTime__text">0:00 / 0:00</span>
+              <span class="cursorTime__skip">Click to Skip</span>
+            </div>
+            <button class="videoSoundBtn is-muted" type="button" aria-label="Unmute">
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M3 10v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8V5.8c0-.82-.92-1.29-1.58-.8l-4 3H5c-1.1 0-2 .9-2 2zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+                />
+              </svg>
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.19l2.45 2.45c.03-.2.05-.4.05-.61zM19 12c0 .94-.2 1.82-.55 2.63l1.51 1.51C20.63 14.93 21 13.51 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l5 5H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8v-6.73l4.15 4.15c-.7.55-1.5.98-2.43 1.26v2.06c1.46-.33 2.79-1.02 3.89-1.95L19.73 21 21 19.73 4.27 3zM12 5.8v3.67L9.23 6.7 12 5.8z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 -->
+      <section class="screen projectsScreen" data-screen="10" aria-label="Noble Story Co. projects">
+        <div class="projectsScreen__bg" aria-hidden="true">
+          <img class="projectsScreen__bgImage" id="projectsMediaBgImage" src="" alt="" />
+          <div class="projectsScreen__bgOverlay" aria-hidden="true"></div>
+        </div>
+        <div class="frame frame--wide">
+          <div class="kicker kicker--logo">
+            <img
+              class="brandInlineLogo brandInlineLogo--story"
+              src="./assets/NobleStoryCo_White.png"
+              alt="Noble Story Co."
+              decoding="async"
+              loading="lazy"
+            />
+            Projects
+          </div>
+          <h2 class="h2">IMPACTFUL STORIES, MASSIVE SCREENS</h2>
+
+          <div class="projects">
+            <div class="projectsMedia reveal" aria-label="Project media">
+              <div class="projectsMedia__stage" id="projectsMediaStage" aria-hidden="true"></div>
+              <div class="projectsMedia__meta" id="projectsMediaMeta" aria-hidden="true"></div>
+            </div>
+
+            <div class="projectsPanel">
+              <div class="projectsList reveal" id="projectsList" role="listbox" aria-label="Projects"></div>
+              <div class="projectsHint subtle">Hover or focus a project to preview</div>
+            </div>
+            <!-- Projects data will be populated by JavaScript -->
+            <script type="application/json" id="projectsData">
+            [
+              {
+                "title": "Endurance",
+                "poster": "./assets/Endurance Movie Poster vD Final.jpg",
+                "alt": "Endurance movie poster",
+                "description": "After an Army Ranger steps on an IED in Afghanistan, he sets out on a journey with his resolute wife and magnetic physical therapist to reinvent what it means to be a husband, a father, and a Boston Marathon runner.",
+                "details": "This film is set up at STX Entertainment, with Leslie Odom Jr. attached to star and Roxann Dawson attached to direct. Noble Story Co. is producing alongside Cedar Hill Entertainment and Damascus Road Productions.",
+                "video": "https://vimeo.com/738787460/36eee01ba3?fl=ls&fe=ec",
+                "links": [
+                  {"text": "Concept Video", "href": "#", "type": "video"},
+                  {"text": "Pitch Deck", "href": "https://drive.google.com/file/d/1qN9LayUxn_7fqx4scl_SmvaDO2R1tadO/view?usp=sharing"}
+                ]
+              },
+              {
+                "title": "The Heart Mender",
+                "poster": "./assets/The Heart Mender Movie Poster v7_Edited_Medium.jpg",
+                "alt": "The Heart Mender movie poster",
+                "description": "After a recent war widow discovers a dying German sailor on the beach near her Alabama home, she risks her life to tend to his wounds and discovers the power of forgiveness. Based on a true story, as written in the book The Heart Mender by 3× NYT bestselling author Andy Andrews.",
+                "details": "David Henrie is attached to star, along with director Jeff Celentano. We've secured $1.25M in equity funding. Noble Story Co. is producing alongside Novo Media Group and Enliven Content.",
+                "links": [
+                  {"text": "Pitch Deck", "href": "https://drive.google.com/file/d/1yVMOHX107ZTFxK4jlg22Hj654nqToAop/view?usp=sharing"}
+                ]
+              },
+              {
+                "title": "It's a Christmas Miracle, Charlie Brown",
+                "poster": "./assets/IACMCB Concept Poster - Andrew.jpg",
+                "alt": "IACMCB movie poster",
+                "description": "A floundering producer gets a shot at creating a Charlie Brown Christmas, but the honest story penned by Charles Schulz is in danger of killing the special and ruining his career.",
+                "details": "In development at Sony Affirm.",
+                "video": "https://vimeo.com/738155230/3866b47b21?fl=ls&fe=ec",
+                "links": [
+                  {"text": "Concept Video", "href": "#", "type": "video"},
+                  {"text": "Pitch Deck", "href": "https://drive.google.com/file/d/14m3fASUu2WLmLKZRnRvkSTHO0Rm-5o8v/view?usp=sharing"}
+                ]
+              }
+            ]
+            </script>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section class="screen screen--video screen--chromeHidden screen--interstitial" data-screen="11" aria-label="NCN interstitial video">
+        <div class="frame frame--full">
+          <div class="videoWrap">
+            <video class="video" playsinline autoplay preload="metadata">
+              <source src="./assets/I%27m%20starting%20a%20HISTORY%20YouTube%20Channel.mp4" type="video/mp4" />
+            </video>
+            <button class="videoOverlay interstitialOverlay is-hidden" type="button" aria-label="Enable sound">
+              <div class="videoOverlay__title">Sound is off</div>
+              <div class="videoOverlay__hint">Tap to play with sound</div>
+            </button>
+            <div class="cursorTime" aria-hidden="true">
+              <span class="cursorTime__text">0:00 / 0:00</span>
+              <span class="cursorTime__skip">Click to Skip</span>
+            </div>
+            <button class="videoSoundBtn is-muted" type="button" aria-label="Unmute">
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--on" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M3 10v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8V5.8c0-.82-.92-1.29-1.58-.8l-4 3H5c-1.1 0-2 .9-2 2zm13.5 2c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"
+                />
+              </svg>
+              <svg class="videoSoundBtn__icon videoSoundBtn__icon--off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.19l2.45 2.45c.03-.2.05-.4.05-.61zM19 12c0 .94-.2 1.82-.55 2.63l1.51 1.51C20.63 14.93 21 13.51 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l5 5H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3l4 3c.66.49 1.58.02 1.58-.8v-6.73l4.15 4.15c-.7.55-1.5.98-2.43 1.26v2.06c1.46-.33 2.79-1.02 3.89-1.95L19.73 21 21 19.73 4.27 3zM12 5.8v3.67L9.23 6.7 12 5.8z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 -->
+      <section class="screen ncnProjectsScreen" data-screen="12" aria-label="Noble Creator Network projects">
+        <div class="ncnProjectsScreen__bg" aria-hidden="true">
+          <video
+            id="ncnProjectsBgVideo"
+            class="ncnProjectsScreen__bgVideo"
+            playsinline
+            autoplay
+            muted
+            loop
+            preload="metadata"
+          >
+            <source src="./assets/Noble%20Story%20Co%20Logo%20Clips.mp4" type="video/mp4" />
+          </video>
+          <div class="ncnProjectsScreen__bgOverlay" aria-hidden="true"></div>
+        </div>
+        <div class="frame frame--wide">
+          <div class="kicker kicker--logo">
+            <img
+              class="brandInlineLogo brandInlineLogo--ncn"
+              src="./assets/NCN%20Logo%20-%20White.png"
+              alt="Noble Creator Network"
+              decoding="async"
+              loading="lazy"
+            />
+            Projects
+          </div>
+          <h2 class="h2">HUGE IMPACT, SMALL SCREENS</h2>
+
+          <div class="ncnTabs" id="ncnTabs">
+            <div class="ncnTabs__list" role="tablist" aria-label="NCN Projects">
+              <button class="ncnTab reveal" type="button" role="tab" aria-selected="true" aria-controls="ncn-panel-top-of-class" id="ncn-tab-top-of-class" data-pillar="top-of-class">
+                <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
+                  <source src="./assets/TOTCbg.mp4" type="video/mp4" />
+                </video>
+                <span class="ncnTab__label">TOP OF THE CLASS</span>
+              </button>
+              <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-history" id="ncn-tab-history" data-pillar="history">
+                <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
+                  <source src="./assets/LoconteBG.mp4" type="video/mp4" />
+                </video>
+                <span class="ncnTab__label">HISTORY AND THE HUMAN STORY</span>
+              </button>
+              <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-coffee" id="ncn-tab-coffee" data-pillar="coffee">
+                <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
+                  <source src="./assets/StephenBG.mp4" type="video/mp4" />
+                </video>
+                <span class="ncnTab__label">IT'S ONLY COFFEE</span>
+              </button>
+              <button class="ncnTab reveal" type="button" role="tab" aria-selected="false" aria-controls="ncn-panel-faith-tech" id="ncn-tab-faith-tech" data-pillar="faith-tech">
+                <video class="ncnTab__thumbnail" playsinline autoplay muted loop preload="metadata">
+                  <source src="./assets/FandT.mp4" type="video/mp4" />
+                </video>
+                <span class="ncnTab__label">Faith &amp; Tech</span>
+              </button>
+            </div>
+
+            <div class="ncnTabs__panels">
+              <div class="ncnTabPanel__arrow" id="ncnTabPanelArrow" aria-hidden="true"></div>
+              <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-top-of-class" aria-labelledby="ncn-tab-top-of-class" aria-hidden="false">
+                <p class="p">
+                  A YouTube competition reality show in the vein of Beast Games and Survivor. Students from all over the
+                  United States can apply to compete in a series of qualifying games, before the top 12 head to the
+                  finals… to compete for a $100,000 scholarship.
+                </p>
+                <p class="p">Mission: To create heroes out of college students worth emulating.</p>
+                <p class="p subtle">
+                  We’ve produced a pilot episode (linked above), and have secured $550,000 of the $750,000 production
+                  budget for Season 1.
+                </p>
+              </div>
+
+              <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-history" aria-labelledby="ncn-tab-history" aria-hidden="true">
+                <p class="p">
+                  A YouTube show hosted by New York Times bestselling author and historian Joseph Loconte. The show
+                  consists of fast-paced video essays tracing the history of Western Civilization… often through an
+                  unexpected lens.
+                </p>
+                <p class="p">
+                  Mission: To irrigate cultural and spiritual deserts with a reminder of the classical Christian
+                  traditions of the West.
+                </p>
+                <p class="p subtle">
+                  We’ve produced two episodes in the GIFT OF THE ITALIANS mini-series (Episode 2 linked above), and four
+                  episodes in the BENJAMIN RUSH mini-series (releasing this month on YouTube). All production has been
+                  financed largely by brand sponsors. To date, the channel has received upwards of $150,000 in brand
+                  sponsor deals and $60,000 in grant funds.
+                </p>
+              </div>
+
+              <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-coffee" aria-labelledby="ncn-tab-coffee" aria-hidden="true">
+                <p class="p">
+                  A YouTube show hosted by Stephen Curtis, a coffee shop and roaster owner and faith-driven
+                  entrepreneur. We partnered with Stephen to produce a broad audience show teaching people how they can
+                  enjoy great coffee at home.
+                </p>
+                <p class="p">Mission: To spread joy and good coffee through entertainment and education on YouTube</p>
+                <p class="p subtle">
+                  We release two long-form videos every month on the channel, and are organically building our library
+                  of content and the audience. One of our latest videos (linked above) grew faster and farther than we
+                  anticipated, with nearly 10,000 views to date
+                </p>
+              </div>
+
+              <div class="ncnTabPanel" role="tabpanel" id="ncn-panel-faith-tech" aria-labelledby="ncn-tab-faith-tech" aria-hidden="true">
+                <p class="p">
+                  A YouTube podcast hosted by tech founder and Faith Driven Entrepreneur Michael Sudyk. The podcast has
+                  featured several high-profile tech founders in the Grand Rapids area.
+                </p>
+                <p class="p">
+                  Mission: Exploring how faith has influenced the careers and life decisions of successful tech
+                  entrepreneurs.
+                </p>
+                <p class="p subtle">
+                  We’ve produced five episodes of the podcast so far, with three more slated for release before the end
+                  of the year.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 -->
+      <section class="screen" data-screen="13" aria-label="Total views">
+        <div class="frame frame--center">
+          <div class="kicker">Noble total views</div>
+          <div class="nsc-views-wrap">
+            <h1 id="yt-total-views" class="nsc-views-h1">Loading…</h1>
+            <div class="nsc-views-progress">
+              <div class="nsc-views-header">
+                <span>
+                  Current total views of Noble's content across all platforms. We're aiming to reach 1 billion eyes.
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="pulseLine" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <!-- 14 -->
+      <section class="screen" data-screen="14" aria-label="Impact">
+        <div class="frame frame--center">
+          <div class="impactOrbit" id="impactOrbit">
+            <div class="impactOrbit__center">
+              <div class="impactOrbit__eyebrow">Impact</div>
+              <h2 class="impactOrbit__tagline">Noble stories, in a noble way.</h2>
+              <div class="impactOrbit__card">
+                We care about more than just the audience - it's important to us that our partners, investors, and crew feel valued and respected.In the six years that we've been telling stories, we've had the humbling privledge of impacting the lives of several people. We asked some of them to share their experience.
+              </div>
+            </div>
+            <div class="impactOrbit__ring" id="impactOrbitRing">
+              <!-- Portraits will be added via JavaScript -->
+            </div>
+          </div>
+          <!-- Impact quotes data -->
+          <script type="application/json" id="impactQuotesData">
+          [
+            {
+              "name": "Dana Wichterman",
+              "title": "Impact Investor",
+              "quote": "I just love the idea of a Noble company, telling Noble stories in a Noble way. That both your means and your ends matter.",
+              "image": "./assets/impact/dana.webp"
+            },
+            {
+              "name": "Raymond Harris",
+              "title": "Investor, Executive Producer (I Can Only Imagine), Architect",
+              "quote": "One of the reasons I became interested in Noble Story Co. is because I saw the potential in two young men that were humble, hard working… and also I think they were talented.",
+              "image": "./assets/impact/raymond.jpeg"
+            },
+            {
+              "name": "David Henrie",
+              "title": "Actor (Wizards of Waverly Place), producer, director.",
+              "quote": "It has been an absolute joy to work with you guys over this past year on Endurance. Adam and Andrew, you've been such a joy to work with, such wonderful men of God and examples in the workplace and at home with your families. It's been a privilege to get to work in that environment.",
+              "image": "./assets/impact/david.jpg"
+            },
+            {
+              "name": "Sloan Inns",
+              "title": "Director and Cinematographer",
+              "quote": "It's rare to find a team in the entertainment space that cares as much about how the story gets made as they do about the story itself. Too often, the end goal trumps the wellbeing of the people doing the work—their health, their needs, their humanity get overlooked in the rush to ship something. But Noble is different. They're committed to telling stories worth telling and doing it in a way that honors the storytellers. That's had a real impact on me—professionally, it's reminded me what this work can look like when it's done right. Personally, it's renewed my belief that you don't have to sacrifice people to make something meaningful.",
+              "image": "./assets/impact/sloan.jpeg"
+            },
+            {
+              "name": "Tom Radovich",
+              "title": "Screenwriter of The Heart Mender and Endurance",
+              "quote": "Noble Story Co. has been instrumental in finding my voice as a storyteller of the good, true, and beautiful. As Christ told parables because He knew the power of storytelling, Andrew Teravskis and Adam Gregory lead the much-needed charge into creating unforgettable stories with universal morals that we will rewatch for decades. And as their frequent screenwriter, I use my pen as a sword to battle trashy and boring content. If one were to ask me, \"who discovered you?\" I would say, without hesitation, Andrew and Adam. Not only are they creatives who are actually creative; they are the iron that sharpens iron. They are industrious creators, they are transformative storytellers, they are my brothers.",
+              "image": "./assets/impact/tom.png"
+            },
+            {
+              "name": "Cedric King",
+              "title": "Real Life Hero of Endurance",
+              "quote": "Noble Story has truly given us a deeper appreciation for our family's story. On several occasions I've met with the Noble Story team and I've come to believe that the events in my life were not just for our family to go through, but for our story to be the framework for a much larger story. God has trusted us with challenges as well as the courage to share our challenges with world. Noble Story has undertaken this journey with us. This journey has come equipped with many long days and nights, several flights to many different destinations with no guarantees of success. God has placed a special hand of favor over this company to tell his stories for the world to hear and for the world to share his love.",
+              "image": "./assets/impact/cedric.png"
+            },
+            {
+              "name": "Khieda King",
+              "title": "Real Life Hero of Endurance",
+              "quote": "When the idea for a film was first presented to our family we were incredibly honored. It was important to us to work with a company driven by heart and integrity. After Cedric and I first met the founders of Noble Story Co., we knew our family's story would be well represented. Adam and Andrew are not only passionate about the stories they want to tell but they are just as dedicated to doing business in an honest and fair way. We are truly looking forward to working with Noble Story Co. to get the inspirational story of Endurance to the big screen.",
+              "image": "./assets/impact/khieda.jpg"
+            },
+            {
+              "name": "Joseph Loconte, PhD",
+              "title": "NYT Bestselling Author, Host of 'History and the Human Story'",
+              "quote": "It is hard to overstate the value of the creative partnership that I've established with my friends at Noble Story Co. Thanks to their great talents, creative instincts, and sheer audacity, I've taken on film projects that I hardly dreamed were possible. Andrew and Adam are a model of Christian integrity and generosity of spirit that set them apart in this industry. My debt to them is unpayable.",
+              "image": "./assets/impact/joe.jpg"
+            }
+          ]
+          </script>
+          <div class="cards" style="display: none;">
+            <article class="card">
+              <div class="card__head">
+                <div class="card__title">1B eyes</div>
+                <div class="card__tag">Goal</div>
+              </div>
+              <p class="p">
+                Current total views across platforms are a step toward a bigger aim: stories that shape what audiences
+                admire.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <div class="card__title">Cultural change</div>
+                <div class="card__tag">Mission</div>
+              </div>
+              <p class="p">
+                From feature films to creator channels, we want to elevate what’s honorable—creating heroes worth
+                emulating.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15 -->
+      <section class="screen" data-screen="15" aria-label="Call to action">
+        <div class="frame frame--wide">
+          <div class="kicker">Call to Action</div>
+          <h2 class="h2">Widget to indicate investment interest</h2>
+          <div id="investMount"></div>
+        </div>
+      </section>
+
+      <!-- 16 -->
+      <section class="screen" data-screen="16" aria-label="Disclaimers">
+        <div class="frame frame--wide">
+          <div class="kicker">Disclaimers</div>
+          <div class="legal">
+            <p class="p"><strong>Financials.</strong> We would be happy to share our company's unaudited financials with you. Please reach out to schedule a Zoom call.</p>
+            <p class="p subtle">
+              <strong>Disclaimer.</strong> This is not an offer to sell or a solicitation of any offer to buy any securities. Offers are made only by prospectus or other offering materials. Noble Story Co. cannot provide financial or tax advice; please check with your licensed financial and tax advisors before making an investment. Only prospective investors who have been invited to review such materials and meet the suitability standards required by law are eligible to invest. This prospectus includes forward-looking statements within the meaning of the safe harbor provisions of the United States Private Securities Litigation Reform Act of 1995.
+            </p>
+            <p class="p subtle">
+              These statements are based upon the current beliefs and expectations of Noble Story Co.'s management and are subject to significant risks and uncertainties. There can be no guarantees. These statements are made as of the date of this communication and Noble Story Co. assumes no obligation to provide updates. All product names, trademarks and registered trademarks are property of their respective owners. All company, product and service names used in this publication are for identification purposes only. Use of these names, trademarks and brands does not imply endorsement.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Video Modal -->
+    <div class="videoModal" id="videoModal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="videoModal__backdrop"></div>
+      <div class="videoModal__content">
+        <button class="videoModal__close" type="button" aria-label="Close video">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div class="videoModal__player" id="videoModalPlayer"></div>
+      </div>
+    </div>
+
+    <!-- Scroll rail: invisible spacers define a fixed number of “screens” -->
+    <div id="scrollRail" class="scrollRail" aria-hidden="true"></div>
+
+    <script src="./main.js" defer></script>
+  </body>
+</html>
