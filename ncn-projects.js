@@ -7,21 +7,7 @@
    Data source: <script type="application/json" id="ncnProjectsData"> in index.html
 */
 
-(function () {
-  // Delay until unlocked if the NDA/password gate is active.
-  if (window.__NS_GATE_LOCKED__) {
-    window.addEventListener(
-      "ns:unlocked",
-      () => {
-        (function () {
-          // (re-enter) original IIFE body continues below
-        })();
-      },
-      { once: true }
-    );
-    return;
-  }
-
+const __nsNcnProjectsMount = () => (function () {
   const getData = () => {
     const el = document.getElementById("ncnProjectsData");
     if (!el) return null;
@@ -356,7 +342,10 @@
         const v = stageItems[idx]?.querySelector("video");
         if (v) {
           if (isActive) {
-            try { v.play(); } catch {}
+            try {
+              const p = v.play();
+              if (p && typeof p.catch === "function") p.catch(() => {});
+            } catch {}
           } else {
             try { v.pause(); } catch {}
           }
@@ -392,16 +381,35 @@
   }
 
   // 2) Mount again on first time the NCN screen becomes active (covers reveal-timing edge cases)
-  //    We keep this lightweight and auto-disconnect after a successful mount.
+  //    Also: when the screen becomes active, re-trigger playback for the active thumbnail video.
   const section = document.querySelector(".ncnProjectsScreen");
   if (section && "MutationObserver" in window) {
+    const playActiveThumb = () => {
+      try {
+        const v = section.querySelector("#ncnProjectsV2 .projectsMedia__item.is-active video");
+        if (!v) return;
+        // Muted looping thumbnail preview
+        v.muted = true;
+        const p = v.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } catch {}
+    };
+
     const obs = new MutationObserver(() => {
       if (section.classList.contains("is-active")) {
         ensureMounted();
-        try { obs.disconnect(); } catch {}
+        // After mount + active-class swap settle, ensure thumbnail playback starts.
+        requestAnimationFrame(playActiveThumb);
       }
     });
     obs.observe(section, { attributes: true, attributeFilter: ["class"] });
   }
 })();
+
+// Delay until unlocked if the NDA/password gate is active.
+if (window.__NS_GATE_LOCKED__) {
+  window.addEventListener("ns:unlocked", __nsNcnProjectsMount, { once: true });
+} else {
+  __nsNcnProjectsMount();
+}
 

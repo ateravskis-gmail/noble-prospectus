@@ -2,7 +2,7 @@
    Usage: window.openNobleEmbedModal(url)
 */
 
-(function () {
+const __nsVideoModalEmbedsMount = () => (function () {
   const getYouTubeIds = (inputUrl) => {
     try {
       const url = new URL(String(inputUrl));
@@ -105,4 +105,11 @@
     }
   };
 })();
+
+// Delay until unlocked if the NDA/password gate is active.
+if (window.__NS_GATE_LOCKED__) {
+  window.addEventListener("ns:unlocked", __nsVideoModalEmbedsMount, { once: true });
+} else {
+  __nsVideoModalEmbedsMount();
+}
 

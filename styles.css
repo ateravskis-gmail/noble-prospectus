@@ -54,6 +54,7 @@ body.ns-locked{
   background:rgba(38,38,38,.88);
   border:1px solid rgba(255,255,255,.12);
   box-shadow:0 22px 70px rgba(0,0,0,.65);
+  text-align:center;
 }
 
 .nsGate__title{
@@ -68,82 +69,13 @@ body.ns-locked{
   line-height:1.5;
 }
 
-.nsGate__row{
-  margin-bottom:14px;
-}
-
-.nsGate__label{
-  display:block;
-  margin-bottom:7px;
-  font-weight:650;
-  color:rgba(255,255,255,.92);
-}
-
-.nsGate__input{
-  width:100%;
-  padding:11px 12px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.20);
-  color:var(--ink);
-  outline:none;
-  box-sizing:border-box;
-  transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
-}
-.nsGate__input::placeholder{ color:rgba(255,255,255,.35); }
-.nsGate__input:focus{
-  border-color:rgba(240,175,45,.55);
-  box-shadow:0 0 0 4px rgba(240,175,45,.15);
-}
-
-.nsGate__checkWrap{
-  display:flex;
-  align-items:center;
-  gap:.7rem;
-  user-select:none;
-}
-
-.nsGate__check{
-  appearance:none;
-  width:22px;
-  height:22px;
-  border-radius:7px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.22);
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  transition:background .2s var(--ease), transform .1s var(--ease), border-color .2s var(--ease);
-}
-.nsGate__check:hover{ background:rgba(255,255,255,.06); }
-.nsGate__check:active{ transform:scale(.92); }
-.nsGate__check:checked{
-  background:var(--gold);
-  border-color:rgba(240,175,45,.8);
-}
-.nsGate__check:checked::after{
-  content:"✓";
-  color:#111;
-  font-size:14px;
-  line-height:1;
-  font-weight:900;
-}
-.nsGate__check:focus-visible{
-  outline:2px solid rgba(240,175,45,.95);
-  outline-offset:2px;
-}
-
-.nsGate__checkLabel{
-  color:rgba(255,255,255,.92);
-  font-size:0.98rem;
-  cursor:pointer;
-}
+.nsGate__row{ margin-bottom:14px; }
 
 .nsGate__actions{
   display:flex;
   gap:.9rem;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:center;
 }
 
 .nsGate__btn{

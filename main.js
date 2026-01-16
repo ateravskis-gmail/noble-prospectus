@@ -974,6 +974,11 @@ function setupInterstitialVideos() {
 
     INTERSTITIAL_BY_SCREEN.set(s, { video, overlay, soundBtn, wrap, cursor, cursorText });
 
+    // Ensure interstitials never start playing just because the user clicked the gate.
+    // Playback is controlled by `setActiveIndex()` when the interstitial screen becomes active.
+    try { video.autoplay = false; } catch {}
+    try { video.pause(); } catch {}
+
     // Cursor time UI (match pitch video).
     if (wrap && cursor && cursorText) {
       let duration = 0;
@@ -1402,7 +1407,15 @@ function bindBrandHub() {
     // If the markup deferred the initial source, make sure it gets assigned before swapping.
     SMART_VIDEO_LOADER.ensureSrcAssigned(bgVideo);
     const current = bgVideo.querySelector("source")?.getAttribute("src");
-    if (current === src) return;
+    if (current === src) {
+      // Source is already correct, but the video may have been paused while off-screen.
+      // Ensure it is playing (muted autoplay) when Brand Overview becomes active.
+      try {
+        bgVideo.muted = true;
+        await bgVideo.play();
+      } catch {}
+      return;
+    }
     const sourceEl = bgVideo.querySelector("source");
     if (sourceEl) {
       sourceEl.setAttribute("src", src);
