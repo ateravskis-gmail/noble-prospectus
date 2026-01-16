@@ -1480,6 +1480,15 @@ function bindBrandHub() {
   BRAND_HUB = { ensureDefaultBg, setBgSrc };
 }
 
+function bindBrandHubScrollCue() {
+  const btn = document.getElementById("brandHubScrollBtn");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    // Brand overview is Screen index 2; advance to the next screen.
+    goToIndex(3);
+  });
+}
+
 // ---- Screen 5: Milestones (media scrollytelling) ----
 const MILESTONES = [
   {
@@ -2296,14 +2305,14 @@ function mountImpactOrbit() {
   const getConstellationMetrics = () => {
     const bounds = getBounds();
     // Oval shape (wider than tall) so it reads more like an orbit, less like a box.
-    const rx = bounds.rx * 0.96;
-    const ry = bounds.ry * 0.78;
+    const rx = bounds.rx * 1.02;
+    const ry = bounds.ry * 0.92;
     const maxZ = bounds.depth * 0.32;
     const exclusion = getCenterExclusion();
     const portraitSize = getPortraitSize();
     // Keep portraits farther from center
-    const inner = 0.84;
-    const outer = 0.99;
+    const inner = 0.965;
+    const outer = 1.0;
     return { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer };
   };
 
@@ -2312,7 +2321,8 @@ function mountImpactOrbit() {
   const getBounds = () => {
     const rect = orbit.getBoundingClientRect();
     const portraitSize = getPortraitSize();
-    const pad = Math.max(18, portraitSize * 0.65);
+    // Smaller padding -> larger ellipse -> portraits sit farther from the center card.
+    const pad = Math.max(14, portraitSize * 0.45);
     const rx = Math.max(0, rect.width / 2 - pad);
     const ry = Math.max(0, rect.height / 2 - pad);
     return {
@@ -2334,8 +2344,8 @@ function mountImpactOrbit() {
     const r = center.getBoundingClientRect();
     // Extra padding accounts for portrait radius + glow.
     return {
-      halfW: r.width / 2 + portraitSize * 1.15,
-      halfH: r.height / 2 + portraitSize * 0.95,
+      halfW: r.width / 2 + portraitSize * 1.55,
+      halfH: r.height / 2 + portraitSize * 1.25,
     };
   };
   
@@ -2514,124 +2524,63 @@ function mountImpactOrbit() {
   // Expose to global screen-change handler.
   IMPACT_UI = { hideTooltip, repositionActiveTooltip };
 
-  // Generate scattered positions (elliptical ring, avoids center content)
-  const generateConstellationPositions = (count) => {
-    const positions = [];
-    const { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer } = getConstellationMetrics();
-    // Target separation (may be impossible for the available ellipse circumference).
-    const requestedMinSeparation = portraitSize * 2.75;
-
+  // Assign fixed "slots" so portraits never cluster or drift into the center.
+  // We still animate a gentle float around each slot.
+  const generateSlotPositions = (count) => {
+    const { rx, ry, maxZ, exclusion, portraitSize, outer } = getConstellationMetrics();
     const TAU = Math.PI * 2;
 
-    // If requested separation is too large to fit around the ellipse, clamp it to a feasible value.
-    // Ramanujan-ish circumference approximation for ellipse.
-    const circumference = TAU * Math.sqrt((rx * rx + ry * ry) / 2);
-    const feasibleMinSeparation = Math.max(portraitSize * 1.25, (circumference / Math.max(1, count)) * 0.92);
-    const minSeparation = Math.min(requestedMinSeparation, feasibleMinSeparation);
+    // Tuned for this layout: avoids the center card and reads as a clean oval around it.
+    // (Top arc -> bottom arc; symmetric, but not so uniform that it looks like a straight row.)
+    const SLOT_ANGLES_8 = [
+      (-150 * Math.PI) / 180,
+      (-110 * Math.PI) / 180,
+      (-70 * Math.PI) / 180,
+      (-30 * Math.PI) / 180,
+      (30 * Math.PI) / 180,
+      (70 * Math.PI) / 180,
+      (110 * Math.PI) / 180,
+      (150 * Math.PI) / 180,
+    ];
 
-    // Start evenly distributed around the ellipse, then relax with repulsion.
-    const phase = Math.random() * TAU;
-    for (let i = 0; i < count; i++) {
-      const angle = phase + (i / count) * TAU;
-      const r = 0.92; // start near the outer ring
-      positions.push({
-        x: Math.cos(angle) * rx * r,
-        y: Math.sin(angle) * ry * r,
-        z: (Math.random() - 0.5) * maxZ,
-      });
-    }
+    const angles = Array.from({ length: count }, (_, i) => {
+      if (count === 8) return SLOT_ANGLES_8[i];
+      // Evenly spaced if we ever add more portraits.
+      return -Math.PI / 2 + (i / count) * TAU;
+    });
 
-    const pushOutOfCenter = (p) => {
-      if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
-        // Push away from the center box along the dominant axis.
-        const sx = Math.sign(p.x) || -1;
-        const sy = Math.sign(p.y) || 1;
-        const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.65;
-        const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.65;
-        if (dx > dy) p.x += sx * dx;
-        else p.y += sy * dy;
-      }
-    };
+    const positions = angles.map((theta, i) => {
+      const th = theta;
+      const absCos = Math.abs(Math.cos(th));
+      const absSin = Math.abs(Math.sin(th));
+      // Compute a radius (t) that clears the center exclusion card *without changing angle*.
+      // This keeps the oval looking symmetric and prevents clustering.
+      const tX = absCos > 0.0001 ? (exclusion.halfW / (absCos * rx)) : 0;
+      const tY = absSin > 0.0001 ? (exclusion.halfH / (absSin * ry)) : 0;
+      const tReq = Math.max(tX, tY);
+      // Small extra margin (in normalized ellipse space) so portraits don't graze the card.
+      const margin = Math.max(0.02, portraitSize / Math.max(1, Math.min(rx, ry)) * 0.25);
+      const t = clamp(Math.max(0.96, tReq + margin), 0, outer);
 
-    const projectToAnnulus = (p) => {
-      // Convert to normalized ellipse space.
-      const ux = p.x / rx;
-      const uy = p.y / ry;
-      const mag = Math.hypot(ux, uy) || 1;
-      let t = mag;
-      if (t < inner) t = inner;
-      if (t > outer) t = outer;
-      const k = t / mag;
-      p.x = ux * k * rx;
-      p.y = uy * k * ry;
-      p.x = clamp(p.x, -bounds.rx, bounds.rx);
-      p.y = clamp(p.y, -bounds.ry, bounds.ry);
-    };
+      const x = Math.cos(th) * rx * t;
+      const y = Math.sin(th) * ry * t;
 
-    // Relaxation: repel close neighbors and keep constraints.
-    for (let iter = 0; iter < 90; iter++) {
-      // Pairwise repulsion
-      for (let a = 0; a < positions.length; a++) {
-        for (let b = a + 1; b < positions.length; b++) {
-          const pa = positions[a];
-          const pb = positions[b];
-          const dx = pb.x - pa.x;
-          const dy = pb.y - pa.y;
-          const d = Math.hypot(dx, dy) || 0.0001;
-          if (d >= minSeparation) continue;
-          const push = ((minSeparation - d) / d) * 0.55;
-          const px = dx * push;
-          const py = dy * push;
-          pa.x -= px;
-          pa.y -= py;
-          pb.x += px;
-          pb.y += py;
-        }
-      }
+      // Deterministic depth pattern (alternating forward/back slightly).
+      const z = clamp(((i % 2 === 0 ? -1 : 1) * (0.28 + (i % 3) * 0.09)) * maxZ, -maxZ, maxZ);
 
-      // Apply constraints each iter
-      for (const p of positions) {
-        pushOutOfCenter(p);
-        projectToAnnulus(p);
-      }
-    }
+      return {
+        theta: th,
+        t,
+        x,
+        y,
+        z,
+      };
+    });
 
-    // Final cleanup pass: if any overlaps remain, do a few more focused repulsion iterations.
-    for (let iter = 0; iter < 30; iter++) {
-      let any = false;
-      for (let a = 0; a < positions.length; a++) {
-        for (let b = a + 1; b < positions.length; b++) {
-          const pa = positions[a];
-          const pb = positions[b];
-          const dx = pb.x - pa.x;
-          const dy = pb.y - pa.y;
-          const d = Math.hypot(dx, dy) || 0.0001;
-          if (d >= minSeparation) continue;
-          any = true;
-          const push = ((minSeparation - d) / d) * 0.6;
-          const px = dx * push;
-          const py = dy * push;
-          pa.x -= px;
-          pa.y -= py;
-          pb.x += px;
-          pb.y += py;
-        }
-      }
-      for (const p of positions) {
-        pushOutOfCenter(p);
-        projectToAnnulus(p);
-      }
-      if (!any) break;
-    }
-
-    return positions.map((p) => ({
-      x: p.x,
-      y: p.y,
-      z: clamp(p.z, -maxZ, maxZ),
-    }));
+    return positions;
   };
 
-  const constellationPositions = generateConstellationPositions(count);
+  const slotPositions = generateSlotPositions(count);
 
   // Animate floating effect (no orbit rotation)
   const animate = () => {
@@ -2643,17 +2592,6 @@ function mountImpactOrbit() {
 
       const maxX = bounds.width * 0.5;
       const maxY = bounds.height * 0.5;
-
-      const pushOutOfCenter = (p, idx) => {
-        if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
-          const sx = Math.sign(p.x) || (idx % 2 === 0 ? -1 : 1);
-          const sy = Math.sign(p.y) || (idx % 3 === 0 ? -1 : 1);
-          const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.6;
-          const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.6;
-          if (dx > dy) p.x += sx * dx;
-          else p.y += sy * dy;
-        }
-      };
 
       const projectToAnnulus = (p) => {
         const ux = p.x / rx;
@@ -2679,13 +2617,23 @@ function mountImpactOrbit() {
         }
 
         const floatSpeed = 0.2 + (i % 3) * 0.08;
-        const floatAmount = 9; // reduced to avoid drift overlaps
-        const floatX = Math.sin(time * floatSpeed * 0.7 + i * 0.5) * floatAmount * 0.3;
-        const floatY = Math.sin(time * floatSpeed + i * 0.8) * floatAmount;
-        const floatZ = Math.cos(time * floatSpeed * 0.5 + i * 1.2) * floatAmount * 0.15;
+        // Float around the portrait's assigned slot angle (radial + tangential),
+        // so motion reads as "gentle drift" rather than random repositioning.
+        const theta = portraits[i]?.seed?.theta;
+        const urx = Number.isFinite(theta) ? Math.cos(theta) : (basePos.x === 0 ? 1 : Math.sign(basePos.x));
+        const ury = Number.isFinite(theta) ? Math.sin(theta) : (basePos.y === 0 ? 0 : Math.sign(basePos.y));
+        const utx = -ury;
+        const uty = urx;
 
-        const x = Math.max(-maxX, Math.min(maxX, basePos.x + floatX));
-        const y = Math.max(-maxY, Math.min(maxY, basePos.y + floatY));
+        // More noticeable float (still slot-centered, deterministic).
+        const aR = 6.5; // radial amplitude (px)
+        const aT = 4.8; // tangential amplitude (px)
+        const radial = Math.sin(time * (floatSpeed * 1.15) + i * 0.9) * aR;
+        const tang = Math.cos(time * (floatSpeed * 0.95) + i * 0.7) * aT;
+        const floatZ = Math.cos(time * (floatSpeed * 0.6) + i * 1.2) * 1.15;
+
+        const x = Math.max(-maxX, Math.min(maxX, basePos.x + urx * radial + utx * tang));
+        const y = Math.max(-maxY, Math.min(maxY, basePos.y + ury * radial + uty * tang));
         const z = basePos.z + floatZ;
         // Keep an "anchor" so repulsion can't cause portraits to drift into other slots.
         return { i, el: p.el, grabbed: false, x, y, z };
@@ -2696,8 +2644,17 @@ function mountImpactOrbit() {
       // producing the perceived random repositioning. We only apply mild constraints.
       for (const p of desired) {
         if (p.grabbed) continue;
-        pushOutOfCenter(p, p.i);
-        projectToAnnulus(p);
+        p.x = clamp(p.x, -bounds.rx, bounds.rx);
+        p.y = clamp(p.y, -bounds.ry, bounds.ry);
+        // Hard guarantee: if float ever reaches into the center exclusion area (should be rare),
+        // snap back to the base slot (no jittery "solver" behavior).
+        if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
+          const base = portraits[p.i]?.basePosition;
+          if (base) {
+            p.x = base.x;
+            p.y = base.y;
+          }
+        }
       }
 
       for (const p of desired) {
@@ -2783,7 +2740,7 @@ function mountImpactOrbit() {
   };
 
   QUOTES.forEach((q, i) => {
-    const pos = constellationPositions[i];
+    const pos = slotPositions[i];
     
     const portrait = document.createElement("div");
     portrait.className = "impactPortrait";
@@ -2804,8 +2761,11 @@ function mountImpactOrbit() {
       el: portrait,
       index: i,
       basePosition: { x: pos.x, y: pos.y, z: pos.z },
-      // Keep layout stable across resizes by storing normalized coordinates (ellipse space).
+      // Keep layout stable across resizes by storing slot angle + normalized radius.
       seed: {
+        theta: pos.theta,
+        t: pos.t,
+        // Back-compat fields (in case other code expects them)
         ux: initRx ? pos.x / initRx : 0,
         uy: initRy ? pos.y / initRy : 0,
         z: initMaxZ ? clamp(pos.z / initMaxZ, -1, 1) : 0,
@@ -2941,17 +2901,6 @@ function mountImpactOrbit() {
     const { bounds, rx, ry, maxZ, exclusion, portraitSize, inner, outer } = getConstellationMetrics();
     if (!bounds.rx || !bounds.ry) return;
 
-    const pushOutOfCenterDeterministic = (p, idx) => {
-      if (Math.abs(p.x) < exclusion.halfW && Math.abs(p.y) < exclusion.halfH) {
-        const sx = Math.sign(p.x) || (idx % 2 === 0 ? -1 : 1);
-        const sy = Math.sign(p.y) || (idx % 3 === 0 ? -1 : 1);
-        const dx = (exclusion.halfW - Math.abs(p.x)) + portraitSize * 0.65;
-        const dy = (exclusion.halfH - Math.abs(p.y)) + portraitSize * 0.65;
-        if (dx > dy) p.x += sx * dx;
-        else p.y += sy * dy;
-      }
-    };
-
     const projectToAnnulus = (p) => {
       const ux = p.x / rx;
       const uy = p.y / ry;
@@ -2968,13 +2917,29 @@ function mountImpactOrbit() {
 
     portraits.forEach((portraitData) => {
       const seed = portraitData.seed || { ux: 0, uy: 0, z: 0 };
-      const next = {
+      const hasTheta = Number.isFinite(seed.theta);
+      let next = hasTheta ? (() => {
+        const th = seed.theta;
+        const absCos = Math.abs(Math.cos(th));
+        const absSin = Math.abs(Math.sin(th));
+        const tX = absCos > 0.0001 ? (exclusion.halfW / (absCos * rx)) : 0;
+        const tY = absSin > 0.0001 ? (exclusion.halfH / (absSin * ry)) : 0;
+        const tReq = Math.max(tX, tY);
+        const margin = Math.max(0.02, portraitSize / Math.max(1, Math.min(rx, ry)) * 0.25);
+        const t = clamp(Math.max(0.96, tReq + margin), 0, outer);
+        return {
+          x: Math.cos(th) * rx * t,
+          y: Math.sin(th) * ry * t,
+          z: clamp(seed.z * maxZ, -maxZ, maxZ),
+        };
+      })() : {
         x: seed.ux * rx,
         y: seed.uy * ry,
         z: clamp(seed.z * maxZ, -maxZ, maxZ),
       };
-      pushOutOfCenterDeterministic(next, portraitData.index ?? 0);
-      projectToAnnulus(next);
+      // Keep it within bounds; we don't project every time (prevents subtle "snapping" motion).
+      next.x = clamp(next.x, -bounds.rx, bounds.rx);
+      next.y = clamp(next.y, -bounds.ry, bounds.ry);
 
       portraitData.basePosition = { x: next.x, y: next.y, z: next.z };
       portraitData.el.style.setProperty("--portrait-x", `${next.x}px`);
@@ -3003,6 +2968,7 @@ mountScrollRail(SCREENS.length);
 bindCTAButtons();
 bindNavDockMagnify(document.getElementById("navDots"), DOTS);
 bindBrandHub();
+bindBrandHubScrollCue();
 bindSpotlight();
 bindParallax();
 bindTilts();
@@ -3043,4 +3009,3 @@ onScroll();
 
 // Start sequential video preloading after first render.
 SMART_VIDEO_LOADER.init(SCREENS);
-

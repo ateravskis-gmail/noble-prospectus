@@ -159,34 +159,14 @@
             <span class="brandHub__subAccent">An entertainment company</span> telling good, true, and beautiful stories.
           </p>
 
-          <div class="brandHub__choices" role="group" aria-label="Choose a Noble brand">
-            <button class="brandPick" type="button" data-brand="story" aria-label="Noble Story Co.">
-              <img
-                class="brandPick__logo"
-                src="./assets/NobleStoryCo_White.png"
-                alt="Noble Story Co."
-                decoding="async"
-                loading="lazy"
-              />
-              <div class="brandPick__panel" aria-hidden="true">
-                <div class="brandPick__tag">IMPACTFUL STORIES. MASSIVE SCREENS.</div>
-                <div class="brandPick__desc">Prestige theatrical releases and premium streaming.</div>
-              </div>
-            </button>
-
-            <button class="brandPick" type="button" data-brand="ncn" aria-label="Noble Creator Network">
-              <img
-                class="brandPick__logo"
-                src="./assets/NCN%20Logo%20-%20White.png"
-                alt="Noble Creator Network"
-                decoding="async"
-                loading="lazy"
-              />
-              <div class="brandPick__panel" aria-hidden="true">
-                <div class="brandPick__tag">HUGE IMPACT. SMALL SCREENS.</div>
-                <div class="brandPick__desc">Culture-defining storytelling on YouTube, the world's largest video platform.</div>
-              </div>
-            </button>
+          <div class="brandHub__pitch" aria-label="Pitch deck navigation hint">
+            <div class="brandHub__pitchCard">
+              <div class="brandHub__pitchTitle">Investment Pitch Deck</div>
+              <p class="p brandHub__pitchBody">Please scroll to explore, or use the navigation menu on the right.</p>
+              <button class="brandHub__scrollCue" id="brandHubScrollBtn" type="button">
+                Scroll Down <span class="brandHub__scrollArrow" aria-hidden="true">↓</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -346,7 +326,7 @@
               <figure class="teamPortrait" tabindex="0">
                 <img
                   class="teamPortrait__img"
-                  src="assets/team/Andrew_NSC_Headshot_BW_Web.jpg"
+                  src="assets/team/IMG_1410.jpeg"
                   alt="Andrew Teravskis"
                   loading="lazy"
                   decoding="async"
@@ -374,7 +354,7 @@
               <figure class="teamPortrait" tabindex="0">
                 <img
                   class="teamPortrait__img"
-                  src="assets/team/Adam_NCS_Headshot_Hat_BW.jpg"
+                  src="assets/team/IMG_1442.jpeg"
                   alt="Adam Gregory"
                   loading="lazy"
                   decoding="async"
@@ -668,6 +648,19 @@
                 "alt": "Endurance movie poster",
                 "description": "After an Army Ranger steps on an IED in Afghanistan, he sets out on a journey with his resolute wife and magnetic physical therapist to reinvent what it means to be a husband, a father, and a Boston Marathon runner.",
                 "details": "This film is set up at STX Entertainment, with Leslie Odom Jr. attached to star and Roxann Dawson attached to direct. Noble Story Co. is producing alongside Cedar Hill Entertainment and Damascus Road Productions.",
+                "partners": [
+                  { "name": "STX Entertainment" },
+                  { "name": "Cedar Hill Entertainment" },
+                  { "name": "Damascus Road Productions" }
+                ],
+                "talent": [
+                  { "role": "Director", "name": "Roxann Dawson", "image": "./assets/roxann.jpg", "alt": "Roxann Dawson", "imdb": "https://www.imdb.com/name/nm0206259/" },
+                  { "role": "Lead Actor", "name": "Leslie Odom Jr.", "image": "./assets/leslie.webp", "alt": "Leslie Odom Jr.", "imdb": "https://www.imdb.com/name/nm1502434/" }
+                ],
+                "budget": {
+                  "label": "Production budget",
+                  "text": "Gross: $18M"
+                },
                 "video": "https://vimeo.com/738787460/36eee01ba3?fl=ls&fe=ec",
                 "links": [
                   {"text": "Concept Video", "href": "#", "type": "video"},
@@ -680,6 +673,18 @@
                 "alt": "The Heart Mender movie poster",
                 "description": "After a recent war widow discovers a dying German sailor on the beach near her Alabama home, she risks her life to tend to his wounds and discovers the power of forgiveness. Based on a true story, as written in the book The Heart Mender by 3× NYT bestselling author Andy Andrews.",
                 "details": "David Henrie is attached to star, along with director Jeff Celentano. We've secured $1.25M in equity funding. Noble Story Co. is producing alongside Novo Media Group and Enliven Content.",
+                "partners": [
+                  { "name": "Novo Media Group" },
+                  { "name": "Enliven Content" }
+                ],
+                "talent": [
+                  { "role": "Director", "name": "Jeff Celentano", "image": "./assets/jeff.jpg", "alt": "Jeff Celentano", "imdb": "https://www.imdb.com/name/nm0147985/" },
+                  { "role": "Lead Actor", "name": "David Henrie", "image": "./assets/impact/david.jpg", "alt": "David Henrie", "imdb": "https://www.imdb.com/name/nm1273708/" }
+                ],
+                "budget": {
+                  "label": "Production budget",
+                  "text": "Gross: $10.9M  |  Net: $8.43M"
+                },
                 "links": [
                   {"text": "Pitch Deck", "href": "https://drive.google.com/file/d/1yVMOHX107ZTFxK4jlg22Hj654nqToAop/view?usp=sharing"}
                 ]
@@ -690,6 +695,13 @@
                 "alt": "IACMCB movie poster",
                 "description": "A floundering producer gets a shot at creating a Charlie Brown Christmas, but the honest story penned by Charles Schulz is in danger of killing the special and ruining his career.",
                 "details": "In development at Sony Affirm.",
+                "partners": [
+                  { "name": "Sony Affirm" }
+                ],
+                "budget": {
+                  "label": "Production budget",
+                  "text": "Target range: $15M - $25M"
+                },
                 "video": "https://vimeo.com/738155230/3866b47b21?fl=ls&fe=ec",
                 "links": [
                   {"text": "Concept Video", "href": "#", "type": "video"},
@@ -703,7 +715,7 @@
       </section>
 
       <!-- 11 -->
-      <section class="screen screen--video screen--chromeHidden screen--interstitial" data-screen="11" aria-label="NCN interstitial video">
+      <section class="screen screen--video screen--chromeHidden screen--interstitial" data-screen="11" aria-label="History and the Human Story Teaser">
         <div class="frame frame--full">
           <div class="videoWrap">
             <video class="video" playsinline autoplay preload="metadata">
@@ -763,6 +775,70 @@
             Projects
           </div>
           <h2 class="h2">HUGE IMPACT, SMALL SCREENS</h2>
+
+          <!-- NCN Projects (v2) data: rendered by ncn-projects.js into the same layout as NSC projects -->
+          <script type="application/json" id="ncnProjectsData">
+          [
+            {
+              "title": "TOP OF THE CLASS",
+              "media": { "type": "video", "src": "./assets/TOTCbg.mp4" },
+              "bg": "./assets/BTS-1-2.jpg",
+              "description": "A YouTube competition reality show in the vein of Beast Games and Survivor. Students from all over the United States can apply to compete in a series of qualifying games, before the top 12 head to the finals… to compete for a $100,000 scholarship.",
+              "details": "Mission: To create heroes out of college students worth emulating. We’ve produced a pilot episode, and have secured $550,000 of the $750,000 production budget for Season 1.",
+              "links": [
+                { "text": "View Channel", "href": "https://www.youtube.com/@Topoftheclassshow" }
+              ],
+              "sponsors": [],
+              "produced": [
+                { "title": "Top of the Class Pilot", "kind": "Episode", "href": "https://www.youtube.com/watch?v=-ybSd9tGlzI" }
+              ]
+            },
+            {
+              "title": "HISTORY AND THE HUMAN STORY",
+              "media": { "type": "video", "src": "./assets/LoconteBG.mp4" },
+              "bg": "./assets/IMG_2739.jpeg",
+              "description": "A YouTube show hosted by New York Times bestselling author and historian Joseph Loconte. The show consists of fast-paced video essays tracing the history of Western Civilization… often through an unexpected lens.",
+              "details": "Mission: To irrigate cultural and spiritual deserts with a reminder of the classical Christian traditions of the West. We’ve produced mini-series including GIFT OF THE ITALIANS and BENJAMIN RUSH. Production has been financed largely by brand sponsors.",
+              "links": [
+                { "text": "View Channel", "href": "https://www.youtube.com/@JoeLoconte" }
+              ],
+              "sponsors": [],
+              "produced": [
+                { "title": "Gift of the Italians", "kind": "Playlist", "href": "https://www.youtube.com/playlist?list=PLpngMyaywdEX6uWW4rClib-amPXtlvqlh", "thumb": "./assets/IMG_2739.jpeg" },
+                { "title": "Benjamin Rush", "kind": "Playlist", "href": "https://www.youtube.com/playlist?list=PLpngMyaywdEUFqR9sc7v2X-wr8Xt-EXBi", "thumb": "./assets/IMG_2739.jpeg" }
+              ]
+            },
+            {
+              "title": "IT'S ONLY COFFEE",
+              "media": { "type": "video", "src": "./assets/StephenBG.mp4" },
+              "bg": "./assets/IMG_4587.jpeg",
+              "description": "A YouTube show hosted by Stephen Curtis, a coffee shop and roaster owner and faith-driven entrepreneur. We partnered with Stephen to produce a broad-audience show teaching people how they can enjoy great coffee at home.",
+              "details": "Mission: To spread joy and good coffee through entertainment and education on YouTube. We release two long-form videos every month and are growing the library organically.",
+              "links": [
+                { "text": "View Channel", "href": "https://www.youtube.com/@itsonlycoffeeshow" }
+              ],
+              "sponsors": [],
+              "produced": [
+                { "title": "Michelin Star Nespresso?", "kind": "Episode", "href": "https://www.youtube.com/watch?v=N31V-iWzKJc" },
+                { "title": "Is Cafe Bustello Actually Good?", "kind": "Episode", "href": "https://www.youtube.com/watch?v=caeYx0ByUI0" }
+              ]
+            },
+            {
+              "title": "FAITH & TECH",
+              "media": { "type": "video", "src": "./assets/FandT.mp4" },
+              "bg": "./assets/IMG_8816.jpeg",
+              "description": "A YouTube podcast hosted by tech founder and Faith Driven Entrepreneur Michael Sudyk. The podcast has featured several high-profile tech founders in the Grand Rapids area.",
+              "details": "Mission: Exploring how faith has influenced the careers and life decisions of successful tech entrepreneurs. We’ve produced five episodes so far, with three more slated for release before the end of the year.",
+              "links": [
+                { "text": "View Channel", "href": "https://www.youtube.com/@FaithandTechPod" }
+              ],
+              "sponsors": [],
+              "produced": [
+                { "title": "Faith and Tech Season 1", "kind": "Playlist", "href": "https://www.youtube.com/watch?v=4FEHGYi_WnE&list=PLO7vSwf7vqdDXk63DdAfefkkRN7XGSQMe" }
+              ]
+            }
+          ]
+          </script>
 
           <div class="ncnTabs" id="ncnTabs">
             <div class="ncnTabs__list" role="tablist" aria-label="NCN Projects">
@@ -893,10 +969,15 @@
         <div class="frame frame--center">
           <div class="impactOrbit" id="impactOrbit">
             <div class="impactOrbit__center">
-              <div class="impactOrbit__eyebrow">Impact</div>
-              <h2 class="impactOrbit__tagline">Noble stories, in a noble way.</h2>
-              <div class="impactOrbit__card">
-                We care about more than just the audience - it's important to us that our partners, investors, and crew feel valued and respected.In the six years that we've been telling stories, we've had the humbling privledge of impacting the lives of several people. We asked some of them to share their experience.
+              <div class="impactOrbit__introCard">
+                <div class="impactOrbit__eyebrow">Impact</div>
+                <h2 class="impactOrbit__tagline">Noble stories, in a noble way.</h2>
+                <p class="p impactOrbit__desc">
+                  We care about more than just the audience—it’s important to us that our partners, investors, and crew feel valued and respected.
+                  In the six years that we’ve been telling stories, we’ve had the humbling privilege of impacting the lives of several people.
+                  We asked some of them to share their experience.
+                </p>
+                <div class="impactOrbit__hint subtle">Hover or tap a portrait to read their story.</div>
               </div>
             </div>
             <div class="impactOrbit__ring" id="impactOrbitRing">
@@ -991,7 +1072,52 @@
       </section>
 
       <!-- 16 -->
-      <section class="screen" data-screen="16" aria-label="Disclaimers">
+      <section class="screen" data-screen="16" aria-label="Contact">
+        <div class="frame frame--wide">
+          <div class="kicker">Contact</div>
+          <h2 class="h2">Thank you.</h2>
+
+          <div class="contactGrid" role="list" aria-label="Contact cards">
+            <article class="contactCard" role="listitem" aria-label="Contact Andrew Teravskis">
+              <img
+                class="contactCard__img"
+                src="assets/team/IMG_1410.jpeg"
+                alt="Andrew Teravskis"
+                decoding="async"
+                loading="lazy"
+              />
+              <div class="contactCard__meta">
+                <div class="contactCard__name">Andrew Teravskis</div>
+                <a class="contactCard__link" href="mailto:andrew@noblestoryco.com">andrew@noblestoryco.com</a>
+                <a class="contactCard__link" href="tel:+12093295602">209.329.5602</a>
+              </div>
+            </article>
+
+            <article class="contactCard" role="listitem" aria-label="Contact Adam Gregory">
+              <img
+                class="contactCard__img"
+                src="assets/team/IMG_1442.jpeg"
+                alt="Adam Gregory"
+                decoding="async"
+                loading="lazy"
+              />
+              <div class="contactCard__meta">
+                <div class="contactCard__name">Adam Gregory</div>
+                <a class="contactCard__link" href="mailto:adam@noblestoryco.com">adam@noblestoryco.com</a>
+                <a class="contactCard__link" href="tel:+12313497475">231.349.7475</a>
+              </div>
+            </article>
+          </div>
+
+          <div class="contactLinks" aria-label="Noble websites">
+            <a class="contactLinks__a" href="https://www.noblestoryco.com" target="_blank" rel="noopener noreferrer">www.noblestoryco.com</a>
+            <a class="contactLinks__a" href="https://www.noblecreators.com" target="_blank" rel="noopener noreferrer">www.noblecreators.com</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 17 -->
+      <section class="screen" data-screen="17" aria-label="Disclaimers">
         <div class="frame frame--wide">
           <div class="kicker">Disclaimers</div>
           <div class="legal">
@@ -1025,5 +1151,8 @@
     <div id="scrollRail" class="scrollRail" aria-hidden="true"></div>
 
     <script src="./main.js" defer></script>
+    <script src="./projects-details.js" defer></script>
+    <script src="./video-modal-embeds.js" defer></script>
+    <script src="./ncn-projects.js" defer></script>
   </body>
 </html>
