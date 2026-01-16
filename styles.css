@@ -24,6 +24,161 @@ body{
   scroll-snap-type:y mandatory;
 }
 
+/* ---- NDA / Password Gate ---- */
+body.ns-locked{
+  overflow:hidden;
+  scroll-snap-type:none;
+}
+
+.nsGate{
+  position:fixed;
+  inset:0;
+  display:grid;
+  place-items:center;
+  z-index:99999;
+  padding:24px;
+  background:
+    radial-gradient(900px 600px at 50% 10%, rgba(240,175,45,.12), transparent 58%),
+    rgba(0,0,0,.82);
+  backdrop-filter: blur(6px);
+}
+
+.nsGate--noscript{
+  z-index:99998;
+}
+
+.nsGate__card{
+  width:min(720px, 94%);
+  border-radius:16px;
+  padding:28px;
+  background:rgba(38,38,38,.88);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 22px 70px rgba(0,0,0,.65);
+}
+
+.nsGate__title{
+  margin:0 0 10px;
+  font-size:1.35rem;
+  letter-spacing:-0.02em;
+}
+
+.nsGate__desc{
+  margin:0 0 14px;
+  color:rgba(255,255,255,.78);
+  line-height:1.5;
+}
+
+.nsGate__row{
+  margin-bottom:14px;
+}
+
+.nsGate__label{
+  display:block;
+  margin-bottom:7px;
+  font-weight:650;
+  color:rgba(255,255,255,.92);
+}
+
+.nsGate__input{
+  width:100%;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.20);
+  color:var(--ink);
+  outline:none;
+  box-sizing:border-box;
+  transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.nsGate__input::placeholder{ color:rgba(255,255,255,.35); }
+.nsGate__input:focus{
+  border-color:rgba(240,175,45,.55);
+  box-shadow:0 0 0 4px rgba(240,175,45,.15);
+}
+
+.nsGate__checkWrap{
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  user-select:none;
+}
+
+.nsGate__check{
+  appearance:none;
+  width:22px;
+  height:22px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.22);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  transition:background .2s var(--ease), transform .1s var(--ease), border-color .2s var(--ease);
+}
+.nsGate__check:hover{ background:rgba(255,255,255,.06); }
+.nsGate__check:active{ transform:scale(.92); }
+.nsGate__check:checked{
+  background:var(--gold);
+  border-color:rgba(240,175,45,.8);
+}
+.nsGate__check:checked::after{
+  content:"✓";
+  color:#111;
+  font-size:14px;
+  line-height:1;
+  font-weight:900;
+}
+.nsGate__check:focus-visible{
+  outline:2px solid rgba(240,175,45,.95);
+  outline-offset:2px;
+}
+
+.nsGate__checkLabel{
+  color:rgba(255,255,255,.92);
+  font-size:0.98rem;
+  cursor:pointer;
+}
+
+.nsGate__actions{
+  display:flex;
+  gap:.9rem;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+.nsGate__btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.92);
+  cursor:pointer;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  transition:transform .12s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+}
+.nsGate__btn:hover:not([disabled]){
+  background:rgba(255,255,255,.10);
+  border-color:rgba(255,255,255,.18);
+}
+.nsGate__btn:active:not([disabled]){ transform:scale(.97); }
+.nsGate__btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+.nsGate__err{
+  color:#ffb3b3;
+  min-height:1.2em;
+  font-size:.95rem;
+}
+
+@media (max-width:480px){
+  .nsGate{ padding:16px; }
+  .nsGate__card{ padding:18px; border-radius:14px; }
+  .nsGate__title{ font-size:1.12rem; }
+}
+
 /* During active resizing, disable snapping to prevent “jumping” between screens. */
 body.is-resizing{
   scroll-snap-type:none;

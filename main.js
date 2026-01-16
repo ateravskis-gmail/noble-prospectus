@@ -8,6 +8,13 @@ let IMPACT_UI = null;
 const INTERSTITIAL_BY_SCREEN = new Map();
 let LAST_INTERSTITIAL_SCREEN = null;
 
+// Boot-time globals (assigned in `boot()`). These are referenced by many handlers.
+let SCREENS = [];
+let PROGRESS = null;
+let DOTS = [];
+// Start “unset” so the first render triggers cinematic reveals on Screen 0.
+let ACTIVE = -1;
+
 // ---- "Video loading…" message (shows after 1s if not playing) ----
 const VIDEO_LOADING = (() => {
   const state = new WeakMap(); // video -> { el, timer }
@@ -2957,55 +2964,73 @@ function mountImpactOrbit() {
 }
 
 // ---- Boot ----
-const SCREENS = Array.from(document.querySelectorAll(".screen"));
-const PROGRESS = document.getElementById("progressBar");
-const DOTS = mountNavDots(SCREENS);
-// Start “unset” so the first render triggers cinematic reveals on Screen 0.
-let ACTIVE = -1;
+function boot() {
+  SCREENS = Array.from(document.querySelectorAll(".screen"));
+  PROGRESS = document.getElementById("progressBar");
+  DOTS = mountNavDots(SCREENS);
+  ACTIVE = -1;
 
-syncViewportUnits();
-mountScrollRail(SCREENS.length);
-bindCTAButtons();
-bindNavDockMagnify(document.getElementById("navDots"), DOTS);
-bindBrandHub();
-bindBrandHubScrollCue();
-bindSpotlight();
-bindParallax();
-bindTilts();
-bindTeamStripInfo();
-bindTeamDockEffect();
-setupVideo();
-setupInterstitialVideos();
-mountMilestones();
-mountProjects();
-bindNcnPillars();
-mountTotalViews();
-mountInvestorWidget();
-mountImpactOrbit();
+  syncViewportUnits();
+  mountScrollRail(SCREENS.length);
+  bindCTAButtons();
+  bindNavDockMagnify(document.getElementById("navDots"), DOTS);
+  bindBrandHub();
+  bindBrandHubScrollCue();
+  bindSpotlight();
+  bindParallax();
+  bindTilts();
+  bindTeamStripInfo();
+  bindTeamDockEffect();
+  setupVideo();
+  setupInterstitialVideos();
+  mountMilestones();
+  mountProjects();
+  bindNcnPillars();
+  mountTotalViews();
+  mountInvestorWidget();
+  mountImpactOrbit();
 
-window.addEventListener("scroll", onScroll, { passive: true });
-let RESIZE_T = 0;
-let RESIZE_CLEAR_T = 0;
-const scheduleResize = () => {
-  document.body.classList.add("is-resizing");
-  if (RESIZE_T) window.clearTimeout(RESIZE_T);
-  RESIZE_T = window.setTimeout(() => {
-    onResize();
-    // After resize settles, snap cleanly to the nearest screen (no in-between).
-    const idx = clamp(Math.round((window.scrollY || window.pageYOffset || 0) / Math.max(1, VIEWPORT_H)), 0, SCREENS.length - 1);
-    window.scrollTo({ top: idx * VIEWPORT_H, behavior: "auto" });
-    onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  let RESIZE_T = 0;
+  let RESIZE_CLEAR_T = 0;
+  const scheduleResize = () => {
+    document.body.classList.add("is-resizing");
+    if (RESIZE_T) window.clearTimeout(RESIZE_T);
+    RESIZE_T = window.setTimeout(() => {
+      onResize();
+      // After resize settles, snap cleanly to the nearest screen (no in-between).
+      const idx = clamp(
+        Math.round((window.scrollY || window.pageYOffset || 0) / Math.max(1, VIEWPORT_H)),
+        0,
+        SCREENS.length - 1
+      );
+      window.scrollTo({ top: idx * VIEWPORT_H, behavior: "auto" });
+      onScroll();
 
-    if (RESIZE_CLEAR_T) window.clearTimeout(RESIZE_CLEAR_T);
-    RESIZE_CLEAR_T = window.setTimeout(() => document.body.classList.remove("is-resizing"), 60);
-  }, 90);
-};
-window.addEventListener("resize", scheduleResize, { passive: true });
-window.visualViewport?.addEventListener("resize", scheduleResize, { passive: true });
-window.addEventListener("keydown", onKeyDown);
+      if (RESIZE_CLEAR_T) window.clearTimeout(RESIZE_CLEAR_T);
+      RESIZE_CLEAR_T = window.setTimeout(() => document.body.classList.remove("is-resizing"), 60);
+    }, 90);
+  };
+  window.addEventListener("resize", scheduleResize, { passive: true });
+  window.visualViewport?.addEventListener("resize", scheduleResize, { passive: true });
+  window.addEventListener("keydown", onKeyDown);
 
-// Initial render
-onScroll();
+  // Initial render
+  onScroll();
 
-// Start sequential video preloading after first render.
-SMART_VIDEO_LOADER.init(SCREENS);
+  // Start sequential video preloading after first render.
+  SMART_VIDEO_LOADER.init(SCREENS);
+}
+
+// Delay initialization until the gate is unlocked (if present).
+if (window.__NS_GATE_LOCKED__) {
+  window.addEventListener(
+    "ns:unlocked",
+    () => {
+      boot();
+    },
+    { once: true }
+  );
+} else {
+  boot();
+}

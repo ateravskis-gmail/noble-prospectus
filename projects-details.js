@@ -1,7 +1,7 @@
 /* Enhances NSC Projects panels with structured "Production details" under the CTA buttons.
    Data source: <script type="application/json" id="projectsData"> in index.html */
 
-(function () {
+const __nsProjectsDetailsMount = () => (function () {
   const getProjectsData = () => {
     const el = document.getElementById("projectsData");
     if (!el) return null;
@@ -184,4 +184,11 @@
     waitForPanelsThenEnhance();
   }
 })();
+
+// Delay until unlocked if the NDA/password gate is active.
+if (window.__NS_GATE_LOCKED__) {
+  window.addEventListener("ns:unlocked", __nsProjectsDetailsMount, { once: true });
+} else {
+  __nsProjectsDetailsMount();
+}
 

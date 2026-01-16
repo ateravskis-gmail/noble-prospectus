@@ -8,6 +8,20 @@
 */
 
 (function () {
+  // Delay until unlocked if the NDA/password gate is active.
+  if (window.__NS_GATE_LOCKED__) {
+    window.addEventListener(
+      "ns:unlocked",
+      () => {
+        (function () {
+          // (re-enter) original IIFE body continues below
+        })();
+      },
+      { once: true }
+    );
+    return;
+  }
+
   const getData = () => {
     const el = document.getElementById("ncnProjectsData");
     if (!el) return null;

@@ -9,10 +9,61 @@
       name="description"
       content="Noble exists to change culture by telling good, true, and beautiful stories."
     />
+    <!-- Privacy: discourage indexing/snippets/caching by search engines -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, max-snippet:0, max-image-preview:none" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex, max-snippet:0, max-image-preview:none" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <a class="sr-only sr-only--focusable" href="#stage">Skip to content</a>
+
+    <!-- NDA / password gate (client-side; for stronger protection, add server-side auth as well) -->
+    <div class="nsGate" id="nsGate" aria-modal="true" role="dialog" aria-labelledby="nsGateTitle">
+      <div class="nsGate__card" role="document">
+        <div class="nsGate__row" role="group" aria-labelledby="nsNdaTitle">
+          <h2 id="nsNdaTitle" class="nsGate__title">Non-Disclosure Agreement</h2>
+          <p class="nsGate__desc" id="nsNdaText">
+            By clicking "I Agree," you agree to keep confidential all matters disclosed on this site (including, without limitation, Noble's engagement on any projects, scripts, plots, and any elements thereof, any set design, props and effects, and the activities of the cast and crew), and Noble's business and production activities.
+          </p>
+        </div>
+
+        <div class="nsGate__row nsGate__checkWrap">
+          <input id="nsAgree" name="agree" type="checkbox" class="nsGate__check" aria-describedby="nsNdaText" />
+          <label for="nsAgree" class="nsGate__checkLabel">I Agree</label>
+        </div>
+
+        <form id="nsGateForm" class="nsGate__form" novalidate>
+          <div class="nsGate__row">
+            <label class="nsGate__label" for="nsFullName">Type your full name (signature)</label>
+            <input class="nsGate__input" id="nsFullName" name="fullName" type="text" required placeholder="Jane Q. Doe" autocomplete="name" />
+          </div>
+
+          <div class="nsGate__row">
+            <label class="nsGate__label" for="nsEmail">Email</label>
+            <input class="nsGate__input" id="nsEmail" name="email" type="email" required placeholder="you@company.com" autocomplete="email" />
+          </div>
+
+          <div class="nsGate__row">
+            <label class="nsGate__label" for="nsPass">Password</label>
+            <input class="nsGate__input" id="nsPass" name="password" type="password" required placeholder="Your access password" autocomplete="current-password" />
+          </div>
+
+          <div class="nsGate__actions">
+            <button class="nsGate__btn" type="submit" id="nsSubmit" disabled>Continue</button>
+            <div class="nsGate__err" id="nsErr" aria-live="polite"></div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="nsGate nsGate--noscript" aria-modal="true" role="dialog">
+        <div class="nsGate__card" role="document">
+          <h2 class="nsGate__title">JavaScript Required</h2>
+          <p class="nsGate__desc">This pitch deck requires JavaScript to display the NDA/password gate. Please enable JavaScript and reload.</p>
+        </div>
+      </div>
+    </noscript>
 
     <!-- Mobile Gate -->
     <div class="mobileGate" id="mobileGate">
@@ -1150,6 +1201,7 @@
     <!-- Scroll rail: invisible spacers define a fixed number of “screens” -->
     <div id="scrollRail" class="scrollRail" aria-hidden="true"></div>
 
+    <script src="./gate.js" defer></script>
     <script src="./main.js" defer></script>
     <script src="./projects-details.js" defer></script>
     <script src="./video-modal-embeds.js" defer></script>
