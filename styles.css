@@ -496,7 +496,7 @@ body.chrome-hidden .topProgress{opacity:0}
 .openingMission__headline{
   margin:0;
   max-width:22ch;
-  font-size:clamp(2.0rem, 4.2vw, 3.2rem);
+  font-size:clamp(2.5rem, 5.25vw, 4.0rem);
   line-height:1.04;
   letter-spacing:-0.03em;
 }
@@ -609,7 +609,7 @@ body.chrome-hidden .topProgress{opacity:0}
 }
 .brandHub__pitchCard > *{position:relative}
 .brandHub__pitchTitle{
-  font-size:clamp(1.25rem, 2.2vw, 1.8rem);
+  font-size:clamp(1.5625rem, 2.75vw, 2.25rem);
   font-weight:900;
   letter-spacing:-0.02em;
   color:rgba(255,255,255,.92);
@@ -777,7 +777,7 @@ body.chrome-hidden .topProgress{opacity:0}
 .kicker--tight{margin-top:18px}
 
 .display{
-  font-size:clamp(2.0rem, 3.4vw, 3.7rem);
+  font-size:clamp(2.5rem, 4.25vw, 4.625rem);
   line-height:1.02;
   letter-spacing:-0.03em;
   margin:0;
@@ -792,24 +792,24 @@ body.chrome-hidden .topProgress{opacity:0}
   color:var(--gold);
   font-weight:950;
   letter-spacing:-0.03em;
-  font-size:1.15em;
+  font-size:1.4375em;
 }
-.display--tight{font-size:clamp(2.1rem, 4.0vw, 4.0rem)}
+.display--tight{font-size:clamp(2.625rem, 5.0vw, 5.0rem)}
 /* If the laptop is short (common on 1440×900), tighten density */
 @media (max-height: 920px){
-  .display{ font-size: clamp(1.9rem, 3.0vw, 3.4rem); }
+  .display{ font-size: clamp(2.375rem, 3.75vw, 4.25rem); }
   .kicker{ margin-bottom: var(--space-6); }
   .hint{ margin-top: 18px; }
 }
 .h2{
-  font-size:clamp(1.6rem, 3.1vw, 2.4rem);
+  font-size:clamp(2.0rem, 3.875vw, 3.0rem);
   line-height:1.1;
   margin:0 0 12px 0;
 }
 .p{
   margin:0;
   color:var(--muted);
-  font-size:clamp(1.02rem, 1.4vw, 1.18rem);
+  font-size:clamp(1.275rem, 1.75vw, 1.475rem);
   line-height:1.55;
 }
 .p + .p{margin-top:12px}
@@ -819,7 +819,7 @@ body.chrome-hidden .topProgress{opacity:0}
 
 .ending{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
 .ending__line{color:var(--muted2)}
-.ending__word{color:var(--gold);font-weight:800;font-size:clamp(1.3rem, 2.1vw, 1.8rem);letter-spacing:-0.02em}
+.ending__word{color:var(--gold);font-weight:800;font-size:clamp(1.625rem, 2.625vw, 2.25rem);letter-spacing:-0.02em}
 .hint{margin-top:26px;color:var(--muted2);display:inline-flex;gap:10px;align-items:center}
 .hint__dot{width:10px;height:10px;border-radius:50%;background:rgba(240,175,45,.9);box-shadow:0 0 0 7px rgba(240,175,45,.14)}
 
@@ -872,7 +872,7 @@ body.chrome-hidden .topProgress{opacity:0}
   color:rgba(240,175,45,.95);
 }
 .quoteCard__body{position:relative;margin-top:var(--space-7)}
-.quoteCard__big{margin:0;font-size:clamp(1.2rem, 2vw, 1.55rem);line-height:1.25;color:rgba(255,255,255,.92)}
+.quoteCard__big{margin:0;font-size:clamp(1.5rem, 2.5vw, 1.9375rem);line-height:1.25;color:rgba(255,255,255,.92)}
 .quoteCard__small{margin:var(--space-5) 0 0;color:var(--muted2)}
 
 .heroOrb{
@@ -916,7 +916,7 @@ body.chrome-hidden .topProgress{opacity:0}
   transition:opacity .25s var(--ease);
 }
 .videoOverlay.is-hidden{opacity:0;pointer-events:none}
-.videoOverlay__title{font-weight:800;letter-spacing:-0.02em;font-size:clamp(1.4rem, 2.3vw, 2.1rem)}
+.videoOverlay__title{font-weight:800;letter-spacing:-0.02em;font-size:clamp(1.75rem, 2.875vw, 2.625rem)}
 .videoOverlay__hint{color:var(--muted2);font-size:var(--text-md)}
 
 .videoLoading{
@@ -1068,7 +1068,7 @@ body.chrome-hidden .topProgress{opacity:0}
 
 /* Views widget */
 .nsc-views-wrap{display:grid;gap:.75rem;text-align:center;justify-items:center}
-.nsc-views-h1{margin:0;font-size:clamp(2rem,5vw,3rem);letter-spacing:-0.02em;line-height:1.05}
+.nsc-views-h1{margin:0;font-size:clamp(2.5rem,6.25vw,3.75rem);letter-spacing:-0.02em;line-height:1.05}
 .nsc-views-progress{display:grid;gap:.5rem;width:100%;max-width:720px}
 .nsc-views-header span{font-weight:600;opacity:.92;color:var(--muted)}
 .pulseLine{
@@ -1226,6 +1226,7 @@ body.chrome-hidden .topProgress{opacity:0}
   letter-spacing:-0.02em;
   color:rgba(255,255,255,.94);
   line-height:1.15;
+  font-size:1.25em;
 }
 .milestonesItem__tag{
   font-size:var(--text-xs);
@@ -1273,9 +1274,9 @@ body.chrome-hidden .topProgress{opacity:0}
 }
 .card__head{display:flex;justify-content:space-between;gap:var(--space-5);align-items:baseline;margin-bottom:var(--space-5)}
 .card__tags{display:flex;gap:var(--space-4);flex-wrap:wrap;justify-content:flex-end}
-.card__title{font-weight:800;letter-spacing:-0.02em;font-size:var(--text-lg)}
+.card__title{font-weight:800;letter-spacing:-0.02em;font-size:1.40625rem}
 .card__tag{
-  font-size:var(--text-xs);color:rgba(240,175,45,.92);
+  font-size:0.9375rem;color:rgba(240,175,45,.92);
   border:1px solid rgba(240,175,45,.28);
   background:rgba(240,175,45,.08);
   padding:var(--space-3) var(--space-5);border-radius:999px;
@@ -1342,7 +1343,7 @@ body.chrome-hidden .topProgress{opacity:0}
   background:rgba(255,255,255,.05);
   padding:var(--space-8);
 }
-.ask__big{font-weight:900;letter-spacing:-0.03em;font-size:clamp(2rem,4vw,3.1rem)}
+.ask__big{font-weight:900;letter-spacing:-0.03em;font-size:clamp(2.5rem,5vw,3.875rem)}
 .ask__sub{margin-top:var(--space-3);color:var(--muted2)}
 .terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-6)}
 @media (max-width:980px){.terms{grid-template-columns:1fr}}
@@ -2240,7 +2241,7 @@ body.chrome-hidden .topProgress{opacity:0}
   color:var(--ink);
   padding:.85rem 1rem;
   border-radius:14px;
-  font-size:1rem;
+  font-size:1.25rem;
   cursor:pointer;
   width:100%;
   transition:transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
@@ -2266,12 +2267,12 @@ body.chrome-hidden .topProgress{opacity:0}
   color:var(--muted2);
   padding:0;
   cursor:pointer;
-  font-size:var(--text-md);
+  font-size:1.09375rem;
   letter-spacing:-0.01em;
 }
 #investMount .nsc-link:hover{color:rgba(255,255,255,.92);text-decoration:underline}
 
-#investMount .nsc-p{margin:0;color:var(--muted);line-height:1.55}
+#investMount .nsc-p{margin:0;color:var(--muted);line-height:1.55;font-size:1.25em}
 #investMount .nsc-choice.nsc-selected{
   outline:2px solid rgba(240,175,45,.85);
   outline-offset:2px;
@@ -2280,22 +2281,22 @@ body.chrome-hidden .topProgress{opacity:0}
 }
 #investMount .nsc-title{
   margin:0 0 12px;
-  font-size:clamp(1.6rem, 3.1vw, 2.2rem);
+  font-size:clamp(2.0rem, 3.875vw, 2.75rem);
   line-height:1.1;
   letter-spacing:-0.02em;
 }
-#investMount .nsc-note{font-size:var(--text-ml);font-style:italic;padding:var(--space-8) 0 0;color:var(--muted2);line-height:1.45}
+#investMount .nsc-note{font-size:1.171875rem;font-style:italic;padding:var(--space-8) 0 0;color:var(--muted2);line-height:1.45}
 #investMount .nsc-grid-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin:.5rem 0 0;width:100%}
 @media (max-width:640px){#investMount .nsc-grid-buttons{grid-template-columns:1fr}}
 #investMount .nsc-field{display:grid;gap:.35rem;margin:.75rem 0;width:100%}
-#investMount .nsc-label{font-size:.95rem;color:rgba(255,255,255,.84)}
+#investMount .nsc-label{font-size:1.1875rem;color:rgba(255,255,255,.84)}
 #investMount .nsc-input,#investMount .nsc-select{
   width:100%;
   min-width:0;
   padding:.8rem .9rem;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.14);
-  font-size:1rem;
+  font-size:1.25rem;
   background:rgba(255,255,255,.06);
   color:var(--ink);
 }
@@ -2955,29 +2956,29 @@ body.chrome-hidden .topProgress{opacity:0}
 
 /* Tighter density for 1080p-ish viewports (keeps Retina feel but trims scale on 1920x1080 / 1440x900) */
 @media (max-width: 2000px){
-  /* 30-40% smaller text - using !important to ensure override */
-  .display{font-size:clamp(1.0rem, 1.45vw, 1.6rem) !important;}
-  .display--tight{font-size:clamp(1.15rem, 1.6vw, 1.8rem) !important;}
-  .openingMission__headline{font-size:clamp(1.05rem, 1.7vw, 1.5rem) !important;}
-  .h2{font-size:clamp(1.0rem, 1.5vw, 1.4rem) !important;}
-  .p{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
-  .term__v{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
-  .ask__sub{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
-  .projectsTabPanel__description{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
-  .projectsTabPanel__details{font-size:clamp(0.7rem, 0.8vw, 0.78rem) !important;}
-  .ncnTabPanel .p{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
-  .quoteCard__small{font-size:clamp(0.7rem, 0.8vw, 0.78rem) !important;}
-  .ending__word{font-size:clamp(0.9rem, 1.1vw, 1.1rem) !important;}
-  .quoteCard__big{font-size:clamp(0.82rem, 1.1vw, 1.0rem) !important;}
-  .ask__big{font-size:clamp(1.1rem, 2vw, 1.8rem) !important;}
-  .card__title{font-size:var(--text-xs) !important;}
-  .milestonesItem__title{font-size:clamp(0.78rem, 0.95vw, 0.9rem) !important;}
-  .milestonesItem__body{font-size:clamp(0.72rem, 0.85vw, 0.82rem) !important;}
-  .milestonesMedia__t{font-size:clamp(0.85rem, 1.05vw, 1.0rem) !important;}
-  .milestonesMedia__k{font-size:var(--text-micro-2) !important;}
-  .milestonesMedia__sub{font-size:clamp(0.75rem, 0.9vw, 0.85rem) !important;}
-  .brandHub__pitchTitle{font-size:clamp(0.9rem, 1.3vw, 1.2rem) !important;}
-  .card__tag{font-size:var(--text-micro-2) !important;}
+  /* 30-40% smaller text - using !important to ensure override - increased by 25% */
+  .display{font-size:clamp(1.25rem, 1.8125vw, 2.0rem) !important;}
+  .display--tight{font-size:clamp(1.4375rem, 2.0vw, 2.25rem) !important;}
+  .openingMission__headline{font-size:clamp(1.3125rem, 2.125vw, 1.875rem) !important;}
+  .h2{font-size:clamp(1.25rem, 1.875vw, 1.75rem) !important;}
+  .p{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important;}
+  .term__v{font-size:clamp(0.796875rem, 0.903125vw, 0.903125rem) !important;}
+  .ask__sub{font-size:clamp(0.796875rem, 0.903125vw, 0.903125rem) !important;}
+  .projectsTabPanel__description{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important;}
+  .projectsTabPanel__details{font-size:clamp(0.875rem, 1.0vw, 0.975rem) !important;}
+  .ncnTabPanel .p{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important;}
+  .quoteCard__small{font-size:clamp(0.875rem, 1.0vw, 0.975rem) !important;}
+  .ending__word{font-size:clamp(1.125rem, 1.375vw, 1.375rem) !important;}
+  .quoteCard__big{font-size:clamp(1.025rem, 1.375vw, 1.25rem) !important;}
+  .ask__big{font-size:clamp(1.375rem, 2.5vw, 2.25rem) !important;}
+  .card__title{font-size:0.78125rem !important;}
+  .milestonesItem__title{font-size:clamp(0.975rem, 1.1875vw, 1.125rem) !important;}
+  .milestonesItem__body{font-size:clamp(0.765rem, 0.903125vw, 0.87125rem) !important;}
+  .milestonesMedia__t{font-size:clamp(1.0625rem, 1.3125vw, 1.25rem) !important;}
+  .milestonesMedia__k{font-size:0.46875rem !important;}
+  .milestonesMedia__sub{font-size:clamp(0.9375rem, 1.125vw, 1.0625rem) !important;}
+  .brandHub__pitchTitle{font-size:clamp(1.125rem, 1.625vw, 1.5rem) !important;}
+  .card__tag{font-size:0.46875rem !important;}
 
   /* Increased vertical spacing for breathing room */
   .chrome{padding:var(--space-5) var(--space-6);}
@@ -3014,15 +3015,15 @@ body.chrome-hidden .topProgress{opacity:0}
   .card{padding:var(--space-5) var(--space-5);border-radius:12px;}
   .ask__left,.ask__right{padding:var(--space-6) var(--space-5);}
 
-  /* Investor widget (CTA) sizing to match other elements */
+  /* Investor widget (CTA) sizing to match other elements - increased by 25% */
   #investMount .nsc-card{padding:clamp(14px, 2.2vw, 20px) !important; border-radius:18px !important;}
-  #investMount .nsc-title{font-size:clamp(1.0rem, 1.5vw, 1.4rem) !important;}
-  #investMount .nsc-btn{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important; padding:clamp(0.65rem, 0.8vw, 0.75rem) clamp(0.75rem, 0.9vw, 0.85rem) !important;}
-  #investMount .nsc-label{font-size:clamp(0.72rem, 0.85vw, 0.82rem) !important;}
-  #investMount .nsc-input, #investMount .nsc-select{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important; padding:clamp(0.65rem, 0.8vw, 0.75rem) clamp(0.7rem, 0.85vw, 0.8rem) !important;}
-  #investMount .nsc-link{font-size:clamp(0.7rem, 0.8vw, 0.78rem) !important;}
-  #investMount .nsc-note{font-size:clamp(0.7rem, 0.8vw, 0.78rem) !important;}
-  #investMount .nsc-p{font-size:clamp(0.75rem, 0.85vw, 0.85rem) !important;}
+  #investMount .nsc-title{font-size:clamp(1.25rem, 1.875vw, 1.75rem) !important;}
+  #investMount .nsc-btn{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important; padding:clamp(0.65rem, 0.8vw, 0.75rem) clamp(0.75rem, 0.9vw, 0.85rem) !important;}
+  #investMount .nsc-label{font-size:clamp(0.9rem, 1.0625vw, 1.025rem) !important;}
+  #investMount .nsc-input, #investMount .nsc-select{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important; padding:clamp(0.65rem, 0.8vw, 0.75rem) clamp(0.7rem, 0.85vw, 0.8rem) !important;}
+  #investMount .nsc-link{font-size:clamp(0.875rem, 1.0vw, 0.975rem) !important;}
+  #investMount .nsc-note{font-size:clamp(0.875rem, 1.0vw, 0.975rem) !important;}
+  #investMount .nsc-p{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important;}
   #investMount .nsc-nav{padding:clamp(0.75rem, 0.9vw, 0.85rem) 0 !important;}
   #investMount .nsc-actions{gap:clamp(0.5rem, 0.6vw, 0.65rem) !important;}
   #investMount .nsc-grid-buttons{gap:clamp(0.4rem, 0.5vw, 0.45rem) !important; margin:clamp(0.4rem, 0.5vw, 0.45rem) 0 0 !important;}
@@ -3119,29 +3120,29 @@ body.chrome-hidden .topProgress{opacity:0}
 
 /* Extra tight scaling for very cramped resolutions (height < 740px) */
 @media (max-width: 2000px) and (max-height: 740px){
-  /* Increased font sizes for cramped screens - H1 sized up 30% */
-  .display{font-size:clamp(1.35rem, 1.8vw, 2.1rem) !important;}
-  .display--tight{font-size:clamp(1.5rem, 2.0vw, 2.4rem) !important;}
-  .openingMission__headline{font-size:clamp(1.1rem, 1.75vw, 1.55rem) !important;}
-  .h2{font-size:clamp(1.35rem, 1.95vw, 1.87rem) !important;}
-  .p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
-  .term__v{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
-  .ask__sub{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
-  .projectsTabPanel__description{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
-  .projectsTabPanel__details{font-size:clamp(0.75rem, 0.85vw, 0.8rem) !important;}
-  .ncnTabPanel .p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
-  .quoteCard__small{font-size:clamp(0.75rem, 0.85vw, 0.8rem) !important;}
-  .ending__word{font-size:clamp(0.92rem, 1.1vw, 1.15rem) !important;}
-  .quoteCard__big{font-size:clamp(0.87rem, 1.1vw, 1.05rem) !important;}
-  .ask__big{font-size:clamp(1.15rem, 1.95vw, 1.85rem) !important;}
-  .card__title{font-size:var(--text-xs) !important;}
-  .milestonesItem__title{font-size:clamp(0.83rem, 1.0vw, 0.95rem) !important;}
-  .milestonesItem__body{font-size:clamp(0.78rem, 0.9vw, 0.87rem) !important;}
-  .milestonesMedia__t{font-size:clamp(0.9rem, 1.1vw, 1.05rem) !important;}
-  .milestonesMedia__k{font-size:var(--text-micro-2) !important;}
-  .milestonesMedia__sub{font-size:clamp(0.8rem, 0.95vw, 0.9rem) !important;}
-  .brandHub__pitchTitle{font-size:clamp(0.98rem, 1.32vw, 1.27rem) !important;}
-  .card__tag{font-size:var(--text-micro-2) !important;}
+  /* Increased font sizes for cramped screens - increased by 25% */
+  .display{font-size:clamp(1.6875rem, 2.25vw, 2.625rem) !important;}
+  .display--tight{font-size:clamp(1.875rem, 2.5vw, 3.0rem) !important;}
+  .openingMission__headline{font-size:clamp(1.375rem, 2.1875vw, 1.9375rem) !important;}
+  .h2{font-size:clamp(1.6875rem, 2.4375vw, 2.3375rem) !important;}
+  .p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
+  .term__v{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
+  .ask__sub{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
+  .projectsTabPanel__description{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
+  .projectsTabPanel__details{font-size:clamp(0.9375rem, 1.0625vw, 1.0rem) !important;}
+  .ncnTabPanel .p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
+  .quoteCard__small{font-size:clamp(0.9375rem, 1.0625vw, 1.0rem) !important;}
+  .ending__word{font-size:clamp(1.15rem, 1.375vw, 1.4375rem) !important;}
+  .quoteCard__big{font-size:clamp(1.0875rem, 1.375vw, 1.3125rem) !important;}
+  .ask__big{font-size:clamp(1.4375rem, 2.4375vw, 2.3125rem) !important;}
+  .card__title{font-size:0.78125rem !important;}
+  .milestonesItem__title{font-size:clamp(1.0375rem, 1.25vw, 1.1875rem) !important;}
+  .milestonesItem__body{font-size:clamp(0.82875rem, 0.95625vw, 0.924375rem) !important;}
+  .milestonesMedia__t{font-size:clamp(1.125rem, 1.375vw, 1.3125rem) !important;}
+  .milestonesMedia__k{font-size:0.46875rem !important;}
+  .milestonesMedia__sub{font-size:clamp(1.0rem, 1.1875vw, 1.125rem) !important;}
+  .brandHub__pitchTitle{font-size:clamp(1.225rem, 1.65vw, 1.5875rem) !important;}
+  .card__tag{font-size:0.46875rem !important;}
 
   /* Tighter spacing for cramped screens */
   .chrome{padding:var(--space-4) var(--space-5);}
@@ -3202,15 +3203,15 @@ body.chrome-hidden .topProgress{opacity:0}
     height:280px;
   }
 
-  /* Investor widget (CTA) sizing for cramped screens - increased to match other elements */
+  /* Investor widget (CTA) sizing for cramped screens - increased by 25% */
   #investMount .nsc-card{padding:clamp(12px, 1.8vw, 18px) !important; border-radius:16px !important;}
-  #investMount .nsc-title{font-size:clamp(1.15rem, 1.73vw, 1.61rem) !important;}
-  #investMount .nsc-btn{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.8rem, 0.95vw, 0.9rem) !important;}
-  #investMount .nsc-label{font-size:clamp(0.78rem, 0.9vw, 0.87rem) !important;}
-  #investMount .nsc-input, #investMount .nsc-select{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.75rem, 0.9vw, 0.85rem) !important;}
-  #investMount .nsc-link{font-size:clamp(0.75rem, 0.85vw, 0.83rem) !important;}
-  #investMount .nsc-note{font-size:clamp(0.75rem, 0.85vw, 0.83rem) !important;}
-  #investMount .nsc-p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  #investMount .nsc-title{font-size:clamp(1.4375rem, 2.1625vw, 2.0125rem) !important;}
+  #investMount .nsc-btn{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.8rem, 0.95vw, 0.9rem) !important;}
+  #investMount .nsc-label{font-size:clamp(0.975rem, 1.125vw, 1.0875rem) !important;}
+  #investMount .nsc-input, #investMount .nsc-select{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.75rem, 0.9vw, 0.85rem) !important;}
+  #investMount .nsc-link{font-size:clamp(0.9375rem, 1.0625vw, 1.0375rem) !important;}
+  #investMount .nsc-note{font-size:clamp(0.9375rem, 1.0625vw, 1.0375rem) !important;}
+  #investMount .nsc-p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
   #investMount .nsc-nav{padding:clamp(0.8rem, 0.95vw, 0.9rem) 0 !important;}
   #investMount .nsc-actions{gap:clamp(0.55rem, 0.65vw, 0.7rem) !important;}
   #investMount .nsc-grid-buttons{gap:clamp(0.45rem, 0.55vw, 0.5rem) !important; margin:clamp(0.45rem, 0.55vw, 0.5rem) 0 0 !important;}
