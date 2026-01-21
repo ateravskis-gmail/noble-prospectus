@@ -1556,6 +1556,7 @@ body.chrome-hidden .topProgress{opacity:0}
   inset:0;
   z-index:0;
   pointer-events:none;
+  display:none;
 }
 .projectsScreen__bgImage{
   width:100%;
@@ -1972,6 +1973,7 @@ body.chrome-hidden .topProgress{opacity:0}
   inset:0;
   z-index:0;
   pointer-events:none;
+  display:none;
 }
 .ncnProjectsScreen__bgImage{
   width:100%;
