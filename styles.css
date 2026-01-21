@@ -2957,10 +2957,12 @@ body.chrome-hidden .topProgress{opacity:0}
 /* Tighter density for 1080p-ish viewports (keeps Retina feel but trims scale on 1920x1080 / 1440x900) */
 @media (max-width: 2000px){
   /* 30-40% smaller text - using !important to ensure override - increased by 25% */
-  .display{font-size:clamp(1.25rem, 1.8125vw, 2.0rem) !important;}
+  /* Verse and mission statement doubled for mid-size breakpoint */
+  .display{font-size:clamp(2.5rem, 3.625vw, 4.0rem) !important;}
   .display--tight{font-size:clamp(1.4375rem, 2.0vw, 2.25rem) !important;}
-  .openingMission__headline{font-size:clamp(1.3125rem, 2.125vw, 1.875rem) !important;}
   .h2{font-size:clamp(1.25rem, 1.875vw, 1.75rem) !important;}
+  .h2.openingMission__headline,
+  .openingMission__headline{font-size:clamp(2.625rem, 4.25vw, 3.75rem) !important;}
   .p{font-size:clamp(0.9375rem, 1.0625vw, 1.0625rem) !important;}
   .term__v{font-size:clamp(0.796875rem, 0.903125vw, 0.903125rem) !important;}
   .ask__sub{font-size:clamp(0.796875rem, 0.903125vw, 0.903125rem) !important;}
@@ -3121,10 +3123,12 @@ body.chrome-hidden .topProgress{opacity:0}
 /* Extra tight scaling for very cramped resolutions (height < 740px) */
 @media (max-width: 2000px) and (max-height: 740px){
   /* Increased font sizes for cramped screens - increased by 25% */
-  .display{font-size:clamp(1.6875rem, 2.25vw, 2.625rem) !important;}
+  /* Verse and mission statement doubled for cramped breakpoint */
+  .display{font-size:clamp(3.375rem, 4.5vw, 5.25rem) !important;}
   .display--tight{font-size:clamp(1.875rem, 2.5vw, 3.0rem) !important;}
-  .openingMission__headline{font-size:clamp(1.375rem, 2.1875vw, 1.9375rem) !important;}
   .h2{font-size:clamp(1.6875rem, 2.4375vw, 2.3375rem) !important;}
+  .h2.openingMission__headline,
+  .openingMission__headline{font-size:clamp(2.75rem, 4.375vw, 3.875rem) !important;}
   .p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
   .term__v{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
   .ask__sub{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
