@@ -1218,7 +1218,7 @@ body.chrome-hidden .topProgress{opacity:0}
   display:flex;
   justify-content:space-between;
   gap:var(--space-5);
-  padding-left:var(--space-8);
+  padding-left:calc(var(--space-8) + var(--space-4));
   align-items:baseline;
 }
 .milestonesItem__title{
@@ -1237,7 +1237,7 @@ body.chrome-hidden .topProgress{opacity:0}
   flex:0 0 auto;
 }
 .milestonesItem__body{
-  padding-left:var(--space-8);
+  padding-left:calc(var(--space-8) + var(--space-4));
   color:rgba(255,255,255,.84);
   line-height:1.45;
 }
@@ -2984,6 +2984,7 @@ body.chrome-hidden .topProgress{opacity:0}
   .topProgress{height:2px;}
   .stage{padding-top:48px;}
   .screen{padding:clamp(28px, 4.5vw, 48px);}
+  .screen--video{padding:0 !important;}
   .kicker{margin-bottom:var(--space-8);}
   .hint{margin-top:22px;}
 
@@ -3109,8 +3110,8 @@ body.chrome-hidden .topProgress{opacity:0}
   /* Milestones: taller container but tighter items to fit all 4 */
   .milestones{--milestones-h:min(50vh, 420px);gap:var(--space-6);}
   .milestonesItem{padding:var(--space-5) var(--space-5);border-radius:14px;gap:var(--space-3);}
-  .milestonesItem__head{gap:var(--space-4);padding-left:var(--space-7);}
-  .milestonesItem__body{padding-left:var(--space-7);}
+  .milestonesItem__head{gap:var(--space-4);padding-left:calc(var(--space-7) + var(--space-4)) !important;}
+  .milestonesItem__body{padding-left:calc(var(--space-7) + var(--space-4)) !important;}
   .milestonesMedia{border-radius:18px;}
   .milestonesMedia__meta{padding:var(--space-6) var(--space-6) var(--space-7);}
   .milestonesList{gap:var(--space-4);padding:var(--space-4);}
@@ -3118,29 +3119,29 @@ body.chrome-hidden .topProgress{opacity:0}
 
 /* Extra tight scaling for very cramped resolutions (height < 740px) */
 @media (max-width: 2000px) and (max-height: 740px){
-  /* Even smaller fonts for cramped screens - H1 sized up 30% */
-  .display{font-size:clamp(1.17rem, 1.56vw, 1.82rem) !important;}
-  .display--tight{font-size:clamp(1.3rem, 1.755vw, 2.08rem) !important;}
-  .openingMission__headline{font-size:clamp(0.95rem, 1.5vw, 1.35rem) !important;}
-  .h2{font-size:clamp(1.17rem, 1.69vw, 1.625rem) !important;}
-  .p{font-size:clamp(0.7rem, 0.75vw, 0.78rem) !important;}
-  .term__v{font-size:clamp(0.7rem, 0.75vw, 0.78rem) !important;}
-  .ask__sub{font-size:clamp(0.7rem, 0.75vw, 0.78rem) !important;}
-  .projectsTabPanel__description{font-size:clamp(0.7rem, 0.75vw, 0.78rem) !important;}
-  .projectsTabPanel__details{font-size:clamp(0.65rem, 0.7vw, 0.72rem) !important;}
-  .ncnTabPanel .p{font-size:clamp(0.7rem, 0.75vw, 0.78rem) !important;}
-  .quoteCard__small{font-size:clamp(0.65rem, 0.7vw, 0.72rem) !important;}
-  .ending__word{font-size:clamp(0.8rem, 0.95vw, 1.0rem) !important;}
-  .quoteCard__big{font-size:clamp(0.75rem, 0.95vw, 0.9rem) !important;}
-  .ask__big{font-size:clamp(1.0rem, 1.7vw, 1.6rem) !important;}
-  .card__title{font-size:var(--text-xxs) !important;}
-  .milestonesItem__title{font-size:clamp(0.72rem, 0.85vw, 0.82rem) !important;}
-  .milestonesItem__body{font-size:clamp(0.68rem, 0.75vw, 0.75rem) !important;}
-  .milestonesMedia__t{font-size:clamp(0.78rem, 0.95vw, 0.9rem) !important;}
-  .milestonesMedia__k{font-size:var(--text-micro-3) !important;}
-  .milestonesMedia__sub{font-size:clamp(0.7rem, 0.8vw, 0.78rem) !important;}
-  .brandHub__pitchTitle{font-size:clamp(0.85rem, 1.15vw, 1.1rem) !important;}
-  .card__tag{font-size:var(--text-micro-3) !important;}
+  /* Increased font sizes for cramped screens - H1 sized up 30% */
+  .display{font-size:clamp(1.35rem, 1.8vw, 2.1rem) !important;}
+  .display--tight{font-size:clamp(1.5rem, 2.0vw, 2.4rem) !important;}
+  .openingMission__headline{font-size:clamp(1.1rem, 1.75vw, 1.55rem) !important;}
+  .h2{font-size:clamp(1.35rem, 1.95vw, 1.87rem) !important;}
+  .p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  .term__v{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  .ask__sub{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  .projectsTabPanel__description{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  .projectsTabPanel__details{font-size:clamp(0.75rem, 0.85vw, 0.8rem) !important;}
+  .ncnTabPanel .p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  .quoteCard__small{font-size:clamp(0.75rem, 0.85vw, 0.8rem) !important;}
+  .ending__word{font-size:clamp(0.92rem, 1.1vw, 1.15rem) !important;}
+  .quoteCard__big{font-size:clamp(0.87rem, 1.1vw, 1.05rem) !important;}
+  .ask__big{font-size:clamp(1.15rem, 1.95vw, 1.85rem) !important;}
+  .card__title{font-size:var(--text-xs) !important;}
+  .milestonesItem__title{font-size:clamp(0.83rem, 1.0vw, 0.95rem) !important;}
+  .milestonesItem__body{font-size:clamp(0.78rem, 0.9vw, 0.87rem) !important;}
+  .milestonesMedia__t{font-size:clamp(0.9rem, 1.1vw, 1.05rem) !important;}
+  .milestonesMedia__k{font-size:var(--text-micro-2) !important;}
+  .milestonesMedia__sub{font-size:clamp(0.8rem, 0.95vw, 0.9rem) !important;}
+  .brandHub__pitchTitle{font-size:clamp(0.98rem, 1.32vw, 1.27rem) !important;}
+  .card__tag{font-size:var(--text-micro-2) !important;}
 
   /* Tighter spacing for cramped screens */
   .chrome{padding:var(--space-4) var(--space-5);}
@@ -3176,8 +3177,8 @@ body.chrome-hidden .topProgress{opacity:0}
   /* Milestones: maximize vertical space efficiency */
   .milestones{--milestones-h:min(48vh, 360px);gap:var(--space-4);}
   .milestonesItem{padding:var(--space-4) var(--space-4);border-radius:12px;gap:var(--space-2);}
-  .milestonesItem__head{gap:var(--space-3);padding-left:var(--space-6);}
-  .milestonesItem__body{padding-left:var(--space-6);}
+  .milestonesItem__head{gap:var(--space-3);padding-left:calc(var(--space-6) + var(--space-4)) !important;}
+  .milestonesItem__body{padding-left:calc(var(--space-6) + var(--space-4)) !important;}
   .milestonesMedia{border-radius:16px;}
   .milestonesMedia__meta{padding:var(--space-5) var(--space-5) var(--space-6);}
   .milestonesList{gap:var(--space-3);padding:var(--space-3);}
@@ -3200,6 +3201,22 @@ body.chrome-hidden .topProgress{opacity:0}
     min-height:280px;
     height:280px;
   }
+
+  /* Investor widget (CTA) sizing for cramped screens - increased to match other elements */
+  #investMount .nsc-card{padding:clamp(12px, 1.8vw, 18px) !important; border-radius:16px !important;}
+  #investMount .nsc-title{font-size:clamp(1.15rem, 1.73vw, 1.61rem) !important;}
+  #investMount .nsc-btn{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.8rem, 0.95vw, 0.9rem) !important;}
+  #investMount .nsc-label{font-size:clamp(0.78rem, 0.9vw, 0.87rem) !important;}
+  #investMount .nsc-input, #investMount .nsc-select{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important; padding:clamp(0.7rem, 0.85vw, 0.8rem) clamp(0.75rem, 0.9vw, 0.85rem) !important;}
+  #investMount .nsc-link{font-size:clamp(0.75rem, 0.85vw, 0.83rem) !important;}
+  #investMount .nsc-note{font-size:clamp(0.75rem, 0.85vw, 0.83rem) !important;}
+  #investMount .nsc-p{font-size:clamp(0.8rem, 0.9vw, 0.9rem) !important;}
+  #investMount .nsc-nav{padding:clamp(0.8rem, 0.95vw, 0.9rem) 0 !important;}
+  #investMount .nsc-actions{gap:clamp(0.55rem, 0.65vw, 0.7rem) !important;}
+  #investMount .nsc-grid-buttons{gap:clamp(0.45rem, 0.55vw, 0.5rem) !important; margin:clamp(0.45rem, 0.55vw, 0.5rem) 0 0 !important;}
+  #investMount .nsc-field{margin:clamp(0.65rem, 0.75vw, 0.7rem) 0 !important; gap:clamp(0.32rem, 0.4vw, 0.37rem) !important;}
+  #investMount .nsc-progress-dot{width:clamp(7px, 0.8vw, 8px) !important; height:clamp(7px, 0.8vw, 8px) !important;}
+  #investMount .nsc-progress{gap:clamp(0.4rem, 0.45vw, 0.45rem) !important;}
 
   /* Narrow NCN projects page to match NSC width (cramped) */
   .ncnProjectsScreen .frame--wide{
