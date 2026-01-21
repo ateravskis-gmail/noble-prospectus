@@ -426,6 +426,9 @@ function onScroll() {
   scheduleBgParallax(y, p);
 }
 
+let scrollRAF = 0;
+let lastY = 0;
+
 let bgRAF = 0;
 let bgLastY = 0;
 let bgLastP = 0;
@@ -546,13 +549,21 @@ function bindSpotlight() {
   const spot = document.getElementById("spotlight");
   if (!spot || prefersReducedMotion()) return;
 
+  let spotlightRAF = 0;
+  let lastX = 0;
+  let lastY = 0;
+
   window.addEventListener(
     "pointermove",
     (e) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      spot.style.setProperty("--mx", `${x.toFixed(2)}%`);
-      spot.style.setProperty("--my", `${y.toFixed(2)}%`);
+      lastX = (e.clientX / window.innerWidth) * 100;
+      lastY = (e.clientY / window.innerHeight) * 100;
+      if (spotlightRAF) return;
+      spotlightRAF = requestAnimationFrame(() => {
+        spotlightRAF = 0;
+        spot.style.setProperty("--mx", `${lastX.toFixed(2)}%`);
+        spot.style.setProperty("--my", `${lastY.toFixed(2)}%`);
+      });
     },
     { passive: true }
   );
@@ -2324,9 +2335,10 @@ function mountImpactOrbit() {
 
   const getConstellationMetrics = () => {
     const bounds = getBounds();
-    // Oval shape (wider than tall) so it reads more like an orbit, less like a box.
-    const rx = bounds.rx * 1.02;
-    const ry = bounds.ry * 0.92;
+    // Wide oval shape (much wider than tall) to spread portraits horizontally and avoid center card.
+    // Expanded size to create more vertical space between top and bottom groups.
+    const rx = bounds.rx * 1.4;
+    const ry = bounds.ry * 1.0;
     const maxZ = bounds.depth * 0.32;
     const exclusion = getCenterExclusion();
     const portraitSize = getPortraitSize();
@@ -2983,6 +2995,12 @@ function boot() {
   DOTS = mountNavDots(SCREENS);
   ACTIVE = -1;
 
+  // Detect low-power devices and add perf-lite class
+  const isLowPower =
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+  if (isLowPower) document.body.classList.add("perf-lite");
+
   syncViewportUnits();
   mountScrollRail(SCREENS.length);
   bindCTAButtons();
@@ -3003,7 +3021,14 @@ function boot() {
   mountInvestorWidget();
   mountImpactOrbit();
 
-  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("scroll", () => {
+    lastY = window.scrollY || window.pageYOffset || 0;
+    if (scrollRAF) return;
+    scrollRAF = requestAnimationFrame(() => {
+      scrollRAF = 0;
+      onScroll(); // onScroll reads window.scrollY anyway
+    });
+  }, { passive: true });
   let RESIZE_T = 0;
   let RESIZE_CLEAR_T = 0;
   const scheduleResize = () => {
