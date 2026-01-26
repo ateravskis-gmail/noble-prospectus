@@ -1269,6 +1269,17 @@ body.chrome-hidden .topProgress{opacity:0}
   box-shadow:0 0 0 8px rgba(240,175,45,.12);
 }
 
+/* Hide tab labels, description container, and media meta overlay on desktop */
+.milestonesItem__tabLabel {
+  display: none;
+}
+.milestonesDescription {
+  display: none;
+}
+.milestonesMedia__meta {
+  display: none;
+}
+
 /* Cards */
 .cards{margin-top:var(--space-7);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-7)}
 @media (max-width:980px){.cards{grid-template-columns:1fr}}
@@ -3735,16 +3746,16 @@ body.chrome-hidden .topProgress{opacity:0}
   }
   @media (max-width:980px){
     .projectsMedia{width:140px;max-width:140px;min-width:140px;margin:0;flex-shrink:0;max-height:var(--projects-h);}
-  }
+    
+    /* Hide "more" sections on mobile */
+    .projectsTabPanel__more{
+      display:none !important;
+    }
 
-  /* Hide "more" sections on mobile */
-  .projectsTabPanel__more{
-    display:none !important;
-  }
-
-  /* Hide less critical info on mobile */
-  .projectsHint{
-    display:none !important;
+    /* Hide less critical info on mobile */
+    .projectsHint{
+      display:none !important;
+    }
   }
 
   /* Condense tab panels: reduce line height and spacing */
@@ -3877,29 +3888,6 @@ body.chrome-hidden .topProgress{opacity:0}
     margin-top:8px;
   }
 
-  /* Milestones: horizontal tabs with single description on mobile */
-  .milestones{
-    grid-template-columns: 1fr;
-    --milestones-h: calc(min(35vh, 280px) - 180px) !important;
-    gap: var(--space-5);
-  }
-  
-  /* Show media area but smaller on mobile - reduced height by 180px total */
-  .milestonesMedia {
-    height: calc(min(35vh, 280px) - 180px) !important;
-    border-radius: 18px;
-  }
-  
-  /* Hide text overlay in video container on mobile */
-  .milestonesMedia__meta {
-    display: none;
-  }
-  
-  /* Hide "Hover or focus" hint message on mobile */
-  .milestonesHint {
-    display: none;
-  }
-  
   /* Team portraits: single row on mobile */
   @media (max-width: 560px) {
     .teamStrip {
@@ -4031,6 +4019,31 @@ body.chrome-hidden .topProgress{opacity:0}
       color: rgba(255, 255, 255, 0.85);
     }
   }
+}
+
+/* Milestones: horizontal tabs with single description on mobile */
+@media (max-width: 980px) {
+  .milestones{
+    grid-template-columns: 1fr;
+    --milestones-h: calc(min(35vh, 280px) - 180px) !important;
+    gap: var(--space-5);
+  }
+  
+  /* Show media area but smaller on mobile - reduced height by 180px total */
+  .milestonesMedia {
+    height: calc(min(35vh, 280px) - 180px) !important;
+    border-radius: 18px;
+  }
+  
+  /* Hide text overlay in video container on mobile */
+  .milestonesMedia__meta {
+    display: none;
+  }
+  
+  /* Hide "Hover or focus" hint message on mobile */
+  .milestonesHint {
+    display: none;
+  }
   
   /* Make list horizontal tabs in a grid - prevent overflow */
   .milestonesList {
@@ -4071,6 +4084,7 @@ body.chrome-hidden .topProgress{opacity:0}
   
   /* Tab label - show #1, #2, etc. */
   .milestonesItem__tabLabel {
+    display: block !important;
     font-size: clamp(0.9rem, 2vw, 1rem) !important;
     font-weight: 700;
     color: rgba(255,255,255,.9);
@@ -4095,12 +4109,12 @@ body.chrome-hidden .topProgress{opacity:0}
   
   /* Description container below tabs */
   .milestonesDescription {
+    display: block !important;
     margin-top: var(--space-4);
     padding: var(--space-5) var(--space-5);
     border-radius: 18px;
     border: 1px solid rgba(240,175,45,.45);
     background: rgba(240,175,45,.08);
-    display: block;
   }
   
   .milestonesDescription__head {
@@ -4240,16 +4254,16 @@ body.chrome-hidden .topProgress{opacity:0}
   }
   @media (max-width:980px){
     .projectsMedia{width:120px;max-width:120px;min-width:120px;margin:0;flex-shrink:0;max-height:var(--projects-h);}
-  }
+    
+    /* Hide "more" sections on mobile (cramped) */
+    .projectsTabPanel__more{
+      display:none !important;
+    }
 
-  /* Hide "more" sections on mobile (cramped) */
-  .projectsTabPanel__more{
-    display:none !important;
-  }
-
-  /* Hide less critical info on mobile (cramped) */
-  .projectsHint{
-    display:none !important;
+    /* Hide less critical info on mobile (cramped) */
+    .projectsHint{
+      display:none !important;
+    }
   }
 
   /* Condense tab panels: reduce line height and spacing (cramped) */
