@@ -609,6 +609,136 @@ function bindTilts() {
   }
 }
 
+function bindCollapsibleCards() {
+  // Use requestAnimationFrame to ensure DOM is ready
+  requestAnimationFrame(() => {
+    const screen3 = document.querySelector('.screen[data-screen="3"]');
+    if (!screen3) return;
+    
+    const cards = Array.from(screen3.querySelectorAll('.card'));
+    if (cards.length === 0) return;
+    
+    // Only enable on mobile
+    const isMobile = () => window.matchMedia('(max-width: 720px)').matches;
+    
+    // Initialize cards based on screen size
+    const initializeCards = () => {
+      cards.forEach((card) => {
+        const toggle = card.querySelector('.card__toggle');
+        if (!toggle) return;
+        
+        if (isMobile()) {
+          // Start collapsed on mobile
+          toggle.setAttribute('aria-expanded', 'false');
+          card.setAttribute('data-expanded', 'false');
+        } else {
+          // Always expanded on desktop
+          toggle.setAttribute('aria-expanded', 'true');
+          card.setAttribute('data-expanded', 'true');
+        }
+      });
+    };
+    
+    initializeCards();
+    
+    const handleToggle = (toggle, card, e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
+      if (!isMobile()) return;
+      
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      const newExpanded = !isExpanded;
+      
+      // Update attributes - use explicit 'true' or 'false' strings
+      if (newExpanded) {
+        toggle.setAttribute('aria-expanded', 'true');
+        card.setAttribute('data-expanded', 'true');
+      } else {
+        toggle.setAttribute('aria-expanded', 'false');
+        card.setAttribute('data-expanded', 'false');
+      }
+    };
+    
+    // Track which card is currently being toggled to prevent double-toggles
+    let togglingCard = null;
+    
+    // Bind toggle buttons and card headers
+    cards.forEach((card) => {
+      const toggle = card.querySelector('.card__toggle');
+      const head = card.querySelector('.card__head');
+      
+      if (!toggle || !head) return;
+      
+      // Toggle button click handler
+      const toggleHandler = (e) => {
+        // Stop all event propagation immediately
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        // Prevent double-toggles
+        if (togglingCard !== null) return;
+        if (!isMobile()) return;
+        
+        togglingCard = card;
+        handleToggle(toggle, card, e);
+        
+        // Clear the lock after animation completes
+        setTimeout(() => {
+          if (togglingCard === card) {
+            togglingCard = null;
+          }
+        }, 500);
+      };
+      
+      // Use capture phase to handle before other handlers
+      toggle.addEventListener('click', toggleHandler, true);
+      
+      // Card header click (but not if clicking the toggle itself)
+      head.addEventListener('click', (e) => {
+        // If clicking the toggle button or any of its children, ignore
+        const clickedToggle = e.target.closest('.card__toggle');
+        if (clickedToggle === toggle) {
+          return; // Let the toggle handler deal with it
+        }
+        
+        // Prevent double-toggles
+        if (togglingCard !== null) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        
+        if (!isMobile()) return;
+        
+        togglingCard = card;
+        handleToggle(toggle, card, e);
+        
+        // Clear the lock after animation completes
+        setTimeout(() => {
+          if (togglingCard === card) {
+            togglingCard = null;
+          }
+        }, 500);
+      }, { passive: false });
+    });
+    
+    // Handle window resize - reset if switching between mobile and desktop
+    let wasMobile = isMobile();
+    const resizeHandler = () => {
+      const nowMobile = isMobile();
+      if (wasMobile !== nowMobile) {
+        initializeCards();
+      }
+      wasMobile = nowMobile;
+    };
+    window.addEventListener('resize', resizeHandler, { passive: true });
+  });
+}
+
 function bindTeamStripInfo() {
   const block = document.getElementById("teamBlock");
   if (!block) return;
@@ -680,8 +810,158 @@ function bindTeamStripInfo() {
   window.addEventListener("resize", () => setHeightToActive(), { passive: true });
 }
 
+function bindTeamMobileTooltips() {
+  const block = document.getElementById("teamBlock");
+  if (!block) return;
+
+  const portraits = Array.from(block.querySelectorAll(".teamPortrait"));
+  if (!portraits.length) return;
+
+  let activePortrait = null;
+  let isHandlingPortraitTap = false;
+
+  const closeTooltip = (portrait) => {
+    if (portrait) {
+      portrait.classList.remove("is-tapped");
+      if (activePortrait === portrait) {
+        activePortrait = null;
+      }
+    }
+  };
+
+  const openTooltip = (portrait) => {
+    // Set flag to prevent outside click handler from interfering
+    isHandlingPortraitTap = true;
+    
+    // Close any other open tooltip immediately
+    if (activePortrait && activePortrait !== portrait) {
+      activePortrait.classList.remove("is-tapped");
+    }
+    
+    // Open the new tooltip immediately
+    portrait.classList.add("is-tapped");
+    activePortrait = portrait;
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      isHandlingPortraitTap = false;
+    }, 300);
+  };
+
+  const isMobile = () => window.matchMedia("(max-width: 560px)").matches;
+
+  portraits.forEach((portrait) => {
+    let touchHandled = false;
+    let touchStartTime = 0;
+    let touchStartTarget = null;
+
+    // Track touch start
+    portrait.addEventListener("touchstart", (e) => {
+      if (!isMobile()) return;
+      touchHandled = false;
+      touchStartTime = Date.now();
+      touchStartTarget = e.target;
+    }, { passive: true });
+
+    // Handle touch end - use capture phase and high priority
+    portrait.addEventListener("touchend", (e) => {
+      if (!isMobile()) return;
+      if (touchHandled) return;
+      
+      // Only handle quick taps
+      const touchDuration = Date.now() - touchStartTime;
+      if (touchDuration > 300) return;
+      
+      // Don't handle if they tapped the LinkedIn link
+      if (touchStartTarget && touchStartTarget.closest(".teamPortrait__li")) {
+        return;
+      }
+      
+      touchHandled = true;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      // Use requestAnimationFrame to ensure DOM update happens immediately
+      requestAnimationFrame(() => {
+        const wasTapped = portrait.classList.contains("is-tapped");
+        if (wasTapped) {
+          closeTooltip(portrait);
+        } else {
+          openTooltip(portrait);
+        }
+      });
+    }, { passive: false, capture: true });
+
+    // Handle click (only if touch wasn't handled)
+    portrait.addEventListener("click", (e) => {
+      if (!isMobile()) return;
+      
+      // If touch was handled, prevent click from firing
+      if (touchHandled) {
+        touchHandled = false;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
+      
+      // Don't handle if they clicked the LinkedIn link
+      if (e.target.closest(".teamPortrait__li")) {
+        return;
+      }
+      
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      // Use requestAnimationFrame to ensure DOM update happens immediately
+      requestAnimationFrame(() => {
+        const wasTapped = portrait.classList.contains("is-tapped");
+        if (wasTapped) {
+          closeTooltip(portrait);
+        } else {
+          openTooltip(portrait);
+        }
+      });
+    }, { passive: false, capture: true });
+  });
+
+  // Close tooltip when clicking elsewhere
+  const handleOutsideClick = (e) => {
+    if (!isMobile()) return;
+    
+    // Don't close if we're currently handling a portrait tap
+    if (isHandlingPortraitTap) {
+      return;
+    }
+    
+    // Don't close if clicking on the tooltip itself or a portrait
+    if (e.target.closest(".teamPortrait") || e.target.closest(".teamPortrait__cap")) {
+      return;
+    }
+    
+    // Close immediately if clicking outside
+    if (activePortrait) {
+      closeTooltip(activePortrait);
+    }
+  };
+  
+  // Use capture phase with delay to let portrait handlers run first
+  document.addEventListener("click", (e) => {
+    setTimeout(() => handleOutsideClick(e), 150);
+  }, { passive: true, capture: true });
+  
+  document.addEventListener("touchend", (e) => {
+    setTimeout(() => handleOutsideClick(e), 150);
+  }, { passive: true, capture: true });
+}
+
 function bindTeamDockEffect() {
   if (prefersReducedMotion()) return;
+  
+  // Disable dock effect on mobile
+  if (window.matchMedia("(max-width: 560px)").matches) return;
   const block = document.getElementById("teamBlock");
   if (!block) return;
 
@@ -1572,11 +1852,21 @@ function mountMilestones() {
   const list = document.getElementById("milestonesList");
   const stage = document.getElementById("milestonesMediaStage");
   const meta = document.getElementById("milestonesMediaMeta");
+  const panel = list?.closest('.milestonesPanel');
   if (!list || !stage || !meta) return;
 
   list.innerHTML = "";
   stage.innerHTML = "";
   meta.innerHTML = "";
+  
+  // Create description container for mobile
+  let descContainer = panel?.querySelector('.milestonesDescription');
+  if (!descContainer && panel) {
+    descContainer = document.createElement("div");
+    descContainer.className = "milestonesDescription";
+    descContainer.setAttribute("aria-live", "polite");
+    panel.appendChild(descContainer);
+  }
 
   const itemBtns = [];
   const stageItems = [];
@@ -1627,6 +1917,11 @@ function mountMilestones() {
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", "false");
 
+    // Tab label for mobile (just the number)
+    const tabLabel = document.createElement("div");
+    tabLabel.className = "milestonesItem__tabLabel";
+    tabLabel.textContent = `#${i + 1}`;
+
     const head = document.createElement("div");
     head.className = "milestonesItem__head";
 
@@ -1647,6 +1942,7 @@ function mountMilestones() {
     body.className = "milestonesItem__body";
     body.textContent = m.body;
 
+    btn.appendChild(tabLabel);
     btn.appendChild(head);
     btn.appendChild(body);
 
@@ -1723,6 +2019,18 @@ function mountMilestones() {
 
     renderMeta(activeIndex);
     playActiveIfVideo(activeIndex);
+    
+    // Update mobile description container
+    if (descContainer) {
+      const m = MILESTONES[activeIndex];
+      descContainer.innerHTML = `
+        <div class="milestonesDescription__head">
+          <div class="milestonesDescription__title">${m.title}</div>
+          ${m.tag ? `<div class="milestonesDescription__tag">${m.tag}</div>` : ''}
+        </div>
+        <div class="milestonesDescription__body">${m.body}</div>
+      `;
+    }
   };
 
   // Keyboard navigation (buttons prevent global ArrowDown changing screens)
@@ -1775,6 +2083,91 @@ function mountMilestones() {
       pauseAll();
     },
   };
+}
+
+// ---- Screen 7: Terms (mobile button interface) ----
+function mountTerms() {
+  const list = document.getElementById("termsList");
+  const descContainer = document.getElementById("termsDescription");
+  if (!list || !descContainer) return;
+
+  // Get all terms from the DOM
+  const termElements = document.querySelectorAll('.term[data-term-key]');
+  if (termElements.length === 0) return;
+
+  const terms = Array.from(termElements).map(el => ({
+    key: el.dataset.termKey,
+    title: el.querySelector('.term__k')?.textContent || '',
+    value: el.querySelector('.term__v')?.textContent || ''
+  }));
+
+  list.innerHTML = "";
+  const itemBtns = [];
+  let activeIndex = -1;
+
+  // Create buttons for each term
+  for (let i = 0; i < terms.length; i++) {
+    const term = terms[i];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "termsItem";
+    btn.dataset.index = String(i);
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", "false");
+    btn.innerHTML = `<span class="termsItem__label">${term.title}</span>`;
+    
+    btn.addEventListener("click", () => {
+      setActive(i);
+    });
+
+    list.appendChild(btn);
+    itemBtns.push(btn);
+  }
+
+  const setActive = (i, { force = false } = {}) => {
+    const next = Math.max(0, Math.min(i, terms.length - 1));
+    if (!force && next === activeIndex) return;
+    activeIndex = next;
+
+    for (let j = 0; j < itemBtns.length; j++) {
+      const is = j === activeIndex;
+      itemBtns[j].classList.toggle("is-active", is);
+      itemBtns[j].setAttribute("aria-selected", is ? "true" : "false");
+    }
+
+    // Update description container
+    const term = terms[activeIndex];
+    descContainer.innerHTML = `
+      <div class="termsDescription__head">
+        <div class="termsDescription__title">${term.title}</div>
+      </div>
+      <div class="termsDescription__body">${term.value}</div>
+    `;
+  };
+
+  // Keyboard navigation
+  list.addEventListener("keydown", (e) => {
+    const key = e.key;
+    if (key !== "ArrowDown" && key !== "ArrowUp" && key !== "ArrowLeft" && key !== "ArrowRight" && key !== "Home" && key !== "End") return;
+    e.preventDefault();
+
+    const focusedIdx = Number(e.target?.dataset?.index);
+    const base = Number.isFinite(focusedIdx) ? focusedIdx : activeIndex;
+
+    let next = base;
+    if (key === "ArrowDown" || key === "ArrowRight") next = base + 1;
+    if (key === "ArrowUp" || key === "ArrowLeft") next = base - 1;
+    if (key === "Home") next = 0;
+    if (key === "End") next = terms.length - 1;
+    next = Math.max(0, Math.min(next, terms.length - 1));
+
+    setActive(next);
+    itemBtns[next]?.focus({ preventScroll: true });
+    itemBtns[next]?.scrollIntoView({ block: "nearest" });
+  });
+
+  // Initial state
+  setActive(0, { force: true });
 }
 
 // ---- Screen 9: Projects (nested layout similar to milestones) ----
@@ -1841,8 +2234,40 @@ function mountProjects() {
     detailsText.className = "projectsTabPanel__details";
     detailsText.textContent = p.details;
 
+    // Add expand/collapse functionality for mobile
+    const addExpandButton = (element) => {
+      if (!element || !element.textContent.trim()) return;
+      
+      // Check if we're on mobile (max-width: 980px)
+      const isMobile = window.matchMedia("(max-width: 980px)").matches;
+      if (!isMobile) return;
+      
+      // Create expand button
+      const expandBtn = document.createElement("button");
+      expandBtn.type = "button";
+      expandBtn.className = "projectsTabPanel__expand";
+      expandBtn.textContent = "Read more";
+      expandBtn.setAttribute("aria-label", "Expand text");
+      
+      expandBtn.addEventListener("click", () => {
+        const isExpanded = element.classList.contains("is-expanded");
+        if (isExpanded) {
+          element.classList.remove("is-expanded");
+          expandBtn.textContent = "Read more";
+        } else {
+          element.classList.add("is-expanded");
+          expandBtn.textContent = "Read less";
+        }
+      });
+      
+      element.parentNode.insertBefore(expandBtn, element.nextSibling);
+    };
+    
     tabPanel.appendChild(description);
+    addExpandButton(description);
+    
     tabPanel.appendChild(detailsText);
+    addExpandButton(detailsText);
 
     if (p.links && p.links.length > 0) {
       const links = document.createElement("div");
@@ -2147,6 +2572,44 @@ function bindNcnPillars() {
   const arrow = document.getElementById("ncnTabPanelArrow");
   let activeTabIndex = 0;
   let isInitialLoad = true;
+
+  // Add expand/collapse functionality for legacy NCN tab panels
+  const addExpandToNcnPanels = () => {
+    const isMobile = window.matchMedia("(max-width: 980px)").matches;
+    if (!isMobile) return;
+    
+    panels.forEach(panel => {
+      const paragraphs = panel.querySelectorAll(".ncnTabPanel .p:not(.ncnTabPanel__links *)");
+      paragraphs.forEach(p => {
+        // Skip if already has expand button
+        if (p.nextElementSibling && p.nextElementSibling.classList.contains("projectsTabPanel__expand")) {
+          return;
+        }
+        
+        const expandBtn = document.createElement("button");
+        expandBtn.type = "button";
+        expandBtn.className = "projectsTabPanel__expand";
+        expandBtn.textContent = "Read more";
+        expandBtn.setAttribute("aria-label", "Expand text");
+        
+        expandBtn.addEventListener("click", () => {
+          const isExpanded = p.classList.contains("is-expanded");
+          if (isExpanded) {
+            p.classList.remove("is-expanded");
+            expandBtn.textContent = "Read more";
+          } else {
+            p.classList.add("is-expanded");
+            expandBtn.textContent = "Read less";
+          }
+        });
+        
+        p.parentNode.insertBefore(expandBtn, p.nextSibling);
+      });
+    });
+  };
+  
+  // Run after a short delay to ensure panels are rendered
+  setTimeout(addExpandToNcnPanels, 100);
 
   const updateArrowPosition = (tabIndex) => {
     if (!arrow || !tabs[tabIndex]) return;
@@ -2988,6 +3451,195 @@ function mountImpactOrbit() {
   return { destroy: cleanup };
 }
 
+// ---- Mobile Impact Carousel ----
+function mountImpactCarousel() {
+  const carousel = document.getElementById("impactCarousel");
+  const track = document.getElementById("impactCarouselTrack");
+  const indicators = document.getElementById("impactCarouselIndicators");
+  const dataEl = document.getElementById("impactQuotesData");
+  
+  if (!carousel || !track || !indicators || !dataEl) return;
+  
+  // Only show carousel on mobile
+  const isMobile = () => window.innerWidth <= 720;
+  if (!isMobile()) {
+    carousel.style.display = "none";
+    return;
+  }
+  
+  const QUOTES = JSON.parse(dataEl.textContent);
+  let currentIndex = 0;
+  
+  // Clear existing content
+  track.innerHTML = "";
+  indicators.innerHTML = "";
+  
+  // Create quote cards
+  QUOTES.forEach((quote, index) => {
+    // Create card
+    const card = document.createElement("article");
+    card.className = "impactCarousel__card";
+    card.setAttribute("aria-label", `Quote from ${quote.name}`);
+    
+    // Create header with image and meta
+    const header = document.createElement("div");
+    header.className = "impactCarousel__header";
+    
+    const img = document.createElement("img");
+    img.className = "impactCarousel__img";
+    img.src = quote.image;
+    img.alt = quote.name;
+    img.loading = "lazy";
+    img.decoding = "async";
+    
+    const meta = document.createElement("div");
+    meta.className = "impactCarousel__meta";
+    
+    const name = document.createElement("div");
+    name.className = "impactCarousel__name";
+    name.textContent = quote.name;
+    
+    const title = document.createElement("div");
+    title.className = "impactCarousel__title";
+    title.textContent = quote.title;
+    
+    meta.appendChild(name);
+    meta.appendChild(title);
+    header.appendChild(img);
+    header.appendChild(meta);
+    
+    // Create quote text
+    const quoteText = document.createElement("p");
+    quoteText.className = "impactCarousel__quote";
+    quoteText.textContent = quote.quote;
+    
+    card.appendChild(header);
+    card.appendChild(quoteText);
+    track.appendChild(card);
+    
+    // Create indicator
+    const indicator = document.createElement("button");
+    indicator.className = "impactCarousel__indicator";
+    if (index === 0) indicator.classList.add("is-active");
+    indicator.setAttribute("aria-label", `Go to quote ${index + 1}`);
+    indicator.setAttribute("aria-current", index === 0 ? "true" : "false");
+    indicator.addEventListener("click", () => {
+      scrollToIndex(index);
+    });
+    indicators.appendChild(indicator);
+  });
+  
+  // Update active indicator
+  const updateIndicators = (index) => {
+    const indicatorButtons = indicators.querySelectorAll(".impactCarousel__indicator");
+    indicatorButtons.forEach((btn, i) => {
+      if (i === index) {
+        btn.classList.add("is-active");
+        btn.setAttribute("aria-current", "true");
+      } else {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-current", "false");
+      }
+    });
+  };
+  
+  // Scroll to specific index
+  const scrollToIndex = (index) => {
+    if (index < 0 || index >= QUOTES.length) return;
+    currentIndex = index;
+    const cards = track.querySelectorAll(".impactCarousel__card");
+    if (cards[index]) {
+      cards[index].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+      updateIndicators(index);
+    }
+  };
+  
+  // Handle scroll to update indicators
+  let scrollTimeout;
+  track.addEventListener("scroll", () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const cards = track.querySelectorAll(".impactCarousel__card");
+      const trackRect = track.getBoundingClientRect();
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+      
+      cards.forEach((card, index) => {
+        const cardRect = card.getBoundingClientRect();
+        const distance = Math.abs(cardRect.left - trackRect.left);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+      
+      if (closestIndex !== currentIndex) {
+        currentIndex = closestIndex;
+        updateIndicators(closestIndex);
+      }
+    }, 100);
+  }, { passive: true });
+  
+  // Swipe handling
+  let touchStartX = 0;
+  let touchEndX = 0;
+  let isScrolling = false;
+  
+  const handleTouchStart = (e) => {
+    touchStartX = e.touches[0].clientX;
+    isScrolling = false;
+  };
+  
+  const handleTouchMove = (e) => {
+    // If user is scrolling vertically, don't interfere
+    const touchMoveX = e.touches[0].clientX;
+    const touchMoveY = e.touches[0].clientY;
+    const deltaX = Math.abs(touchMoveX - touchStartX);
+    const deltaY = Math.abs(touchMoveY - (e.touches[0].clientY || touchStartX));
+    
+    if (deltaY > deltaX) {
+      isScrolling = true;
+    }
+  };
+  
+  const handleTouchEnd = (e) => {
+    if (isScrolling) return;
+    
+    touchEndX = e.changedTouches[0].clientX;
+    const swipeDistance = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // Minimum distance for a swipe
+    
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0 && currentIndex < QUOTES.length - 1) {
+        // Swipe left - next
+        scrollToIndex(currentIndex + 1);
+      } else if (swipeDistance < 0 && currentIndex > 0) {
+        // Swipe right - previous
+        scrollToIndex(currentIndex - 1);
+      }
+    }
+  };
+  
+  track.addEventListener("touchstart", handleTouchStart, { passive: true });
+  track.addEventListener("touchmove", handleTouchMove, { passive: true });
+  track.addEventListener("touchend", handleTouchEnd, { passive: true });
+  
+  // Handle window resize
+  const handleResize = () => {
+    if (isMobile()) {
+      carousel.style.display = "block";
+    } else {
+      carousel.style.display = "none";
+    }
+  };
+  
+  window.addEventListener("resize", handleResize, { passive: true });
+  
+  return { destroy: () => {
+    window.removeEventListener("resize", handleResize);
+  }};
+}
+
 // ---- Boot ----
 function boot() {
   SCREENS = Array.from(document.querySelectorAll(".screen"));
@@ -3011,15 +3663,19 @@ function boot() {
   bindParallax();
   bindTilts();
   bindTeamStripInfo();
+  bindCollapsibleCards();
   bindTeamDockEffect();
+  bindTeamMobileTooltips();
   setupVideo();
   setupInterstitialVideos();
   mountMilestones();
+  mountTerms();
   mountProjects();
   bindNcnPillars();
   mountTotalViews();
   mountInvestorWidget();
   mountImpactOrbit();
+  mountImpactCarousel();
 
   window.addEventListener("scroll", () => {
     lastY = window.scrollY || window.pageYOffset || 0;

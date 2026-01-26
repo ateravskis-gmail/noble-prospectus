@@ -201,8 +201,43 @@ const __nsNcnProjectsMount = () => (function () {
 
       const description = el("p", "projectsTabPanel__description", p.description || "");
       const details = el("p", "projectsTabPanel__details", p.details || "");
+      
+      // Add expand/collapse functionality for mobile
+      const addExpandButton = (element) => {
+        if (!element || !element.textContent || !element.textContent.trim()) return;
+        
+        // Check if we're on mobile (max-width: 980px)
+        const isMobile = window.matchMedia("(max-width: 980px)").matches;
+        if (!isMobile) return;
+        
+        // Create expand button
+        const expandBtn = document.createElement("button");
+        expandBtn.type = "button";
+        expandBtn.className = "projectsTabPanel__expand";
+        expandBtn.textContent = "Read more";
+        expandBtn.setAttribute("aria-label", "Expand text");
+        
+        expandBtn.addEventListener("click", () => {
+          const isExpanded = element.classList.contains("is-expanded");
+          if (isExpanded) {
+            element.classList.remove("is-expanded");
+            expandBtn.textContent = "Read more";
+          } else {
+            element.classList.add("is-expanded");
+            expandBtn.textContent = "Read less";
+          }
+        });
+        
+        element.parentNode.insertBefore(expandBtn, element.nextSibling);
+      };
+      
       tabPanel.appendChild(description);
-      if (p.details) tabPanel.appendChild(details);
+      addExpandButton(description);
+      
+      if (p.details) {
+        tabPanel.appendChild(details);
+        addExpandButton(details);
+      }
 
       if (Array.isArray(p.links) && p.links.length) {
         const links = el("div", "projectsTabPanel__links");
