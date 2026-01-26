@@ -184,6 +184,10 @@ function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 }
 
+function isMobile() {
+  return window.matchMedia?.("(max-width: 720px)")?.matches ?? false;
+}
+
 function mountScrollRail(count) {
   const rail = document.getElementById("scrollRail");
   rail.innerHTML = "";
@@ -3640,6 +3644,134 @@ function mountImpactCarousel() {
   }};
 }
 
+// ---- Mobile Scroll Snap (disable inertial scrolling) ----
+function bindMobileScrollSnap() {
+  if (!isMobile()) return;
+
+  let touchStartY = 0;
+  let touchStartTime = 0;
+  let touchStartScrollY = 0;
+  let isVerticalSwipe = false;
+  let scrollEndTimeout = null;
+
+  const handleTouchStart = (e) => {
+    // Don't interfere with interactive elements
+    if (e.target.closest("button, a, input, textarea, select, [role='button']")) return;
+    
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+    touchStartScrollY = window.scrollY || window.pageYOffset || 0;
+    isVerticalSwipe = false;
+    
+    // Clear any pending snap
+    if (scrollEndTimeout) {
+      clearTimeout(scrollEndTimeout);
+      scrollEndTimeout = null;
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartY) return;
+    
+    const touchMoveY = e.touches[0].clientY;
+    const touchMoveX = e.touches[0].clientX;
+    const deltaY = Math.abs(touchMoveY - touchStartY);
+    const deltaX = Math.abs(touchMoveX - (e.touches[0].clientX || touchStartY));
+    
+    // Determine if this is a vertical swipe
+    if (deltaY > 10 && deltaY > deltaX * 1.5) {
+      isVerticalSwipe = true;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStartY || !isVerticalSwipe) {
+      touchStartY = 0;
+      return;
+    }
+
+    const touchEndY = e.changedTouches[0].clientY;
+    const swipeDistance = touchStartY - touchEndY;
+    const swipeTime = Date.now() - touchStartTime;
+    const minSwipeDistance = 30; // Minimum distance for a swipe
+    const maxSwipeTime = 500; // Maximum time for a swipe gesture
+
+    // Only handle clear swipe gestures
+    if (Math.abs(swipeDistance) > minSwipeDistance && swipeTime < maxSwipeTime) {
+      // Calculate current screen index
+      const currentY = window.scrollY || window.pageYOffset || 0;
+      const currentIndex = clamp(
+        Math.round(currentY / Math.max(1, VIEWPORT_H)),
+        0,
+        SCREENS.length - 1
+      );
+
+      // Determine direction and move one screen
+      let targetIndex = currentIndex;
+      if (swipeDistance > 0 && currentIndex < SCREENS.length - 1) {
+        // Swipe up - next screen
+        targetIndex = currentIndex + 1;
+      } else if (swipeDistance < 0 && currentIndex > 0) {
+        // Swipe down - previous screen
+        targetIndex = currentIndex - 1;
+      }
+
+      // Move to target screen with smooth transition
+      if (targetIndex !== currentIndex) {
+        goToIndex(targetIndex);
+      }
+    } else {
+      // For smaller movements, snap to nearest screen after scroll settles
+      scrollEndTimeout = setTimeout(() => {
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        const currentIndex = clamp(
+          Math.round(currentY / Math.max(1, VIEWPORT_H)),
+          0,
+          SCREENS.length - 1
+        );
+        const targetY = currentIndex * VIEWPORT_H;
+        
+        // Only snap if we're not already at the target (with some tolerance)
+        if (Math.abs(currentY - targetY) > 20) {
+          window.scrollTo({ top: targetY, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+        }
+        scrollEndTimeout = null;
+      }, 200);
+    }
+
+    touchStartY = 0;
+  };
+
+  // Also handle scroll end to snap to nearest screen (catches any remaining momentum)
+  const handleScrollEnd = () => {
+    if (scrollEndTimeout) clearTimeout(scrollEndTimeout);
+    
+    scrollEndTimeout = setTimeout(() => {
+      const currentY = window.scrollY || window.pageYOffset || 0;
+      const currentIndex = clamp(
+        Math.round(currentY / Math.max(1, VIEWPORT_H)),
+        0,
+        SCREENS.length - 1
+      );
+      const targetY = currentIndex * VIEWPORT_H;
+      
+      // Only snap if we're not already at the target (with some tolerance)
+      if (Math.abs(currentY - targetY) > 20) {
+        window.scrollTo({ top: targetY, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      }
+      scrollEndTimeout = null;
+    }, 150);
+  };
+
+  // Add touch event listeners
+  document.addEventListener("touchstart", handleTouchStart, { passive: true });
+  document.addEventListener("touchmove", handleTouchMove, { passive: true });
+  document.addEventListener("touchend", handleTouchEnd, { passive: true });
+  
+  // Add scroll listener for snap behavior (catches momentum scrolling)
+  window.addEventListener("scroll", handleScrollEnd, { passive: true });
+}
+
 // ---- Boot ----
 function boot() {
   SCREENS = Array.from(document.querySelectorAll(".screen"));
@@ -3676,6 +3808,7 @@ function boot() {
   mountInvestorWidget();
   mountImpactOrbit();
   mountImpactCarousel();
+  bindMobileScrollSnap();
 
   window.addEventListener("scroll", () => {
     lastY = window.scrollY || window.pageYOffset || 0;

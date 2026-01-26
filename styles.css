@@ -86,6 +86,13 @@ body{
   /* Snap between “screens” (spacers in the scroll rail). */
   scroll-snap-type:y mandatory;
 }
+/* Disable inertial scrolling on mobile - each swipe moves one step */
+@media (max-width:720px){
+  html,body{
+    -webkit-overflow-scrolling:auto;
+    overscroll-behavior-y:contain;
+  }
+}
 
 /* ---- NDA / Password Gate ---- */
 body.ns-locked{
