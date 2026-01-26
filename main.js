@@ -14,6 +14,14 @@ let PROGRESS = null;
 let DOTS = [];
 // Start “unset” so the first render triggers cinematic reveals on Screen 0.
 let ACTIVE = -1;
+// Track current video screen index for orientation change preservation
+let CURRENT_VIDEO_SCREEN_INDEX = null;
+// Orientation change preservation state (must be global for setActiveIndex to access)
+let savedScreenIndex = null;
+let savedScrollY = null;
+let savedVideoCurrentTime = null;
+let isPreservingVideoScreen = false;
+let resizeStartTime = 0;
 
 // ---- "Video loading…" message (shows after 1s if not playing) ----
 const VIDEO_LOADING = (() => {
@@ -167,7 +175,13 @@ function getViewportHeight() {
 
 let VIEWPORT_H = getViewportHeight();
 function syncViewportUnits() {
+  const oldH = VIEWPORT_H;
   VIEWPORT_H = getViewportHeight();
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:171',message:'syncViewportUnits called',data:{oldViewportH:oldH,newViewportH:VIEWPORT_H,scrollY:window.scrollY||window.pageYOffset||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
   // Used by `.spacer { height: calc(var(--vh) * 100) }`
   document.documentElement.style.setProperty("--vh", `${(VIEWPORT_H * 0.01).toFixed(4)}px`);
 }
@@ -256,8 +270,17 @@ function goToIndex(i) {
 function setActiveIndex(next) {
   next = clamp(next, 0, SCREENS.length - 1);
   if (next === ACTIVE) return;
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:258',message:'setActiveIndex called',data:{next:next,prevActive:ACTIVE,scrollY:window.scrollY||window.pageYOffset||0,viewportH:VIEWPORT_H},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
   ACTIVE = next;
   const active = SCREENS[ACTIVE];
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:272',message:'setActiveIndex active element check',data:{active:active?true:false,activeClasses:active?.className||'null',hasInterstitialClass:active?.classList?.contains('screen--interstitial')||false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
 
   SCREENS.forEach((el, i) => {
     const isActive = i === ACTIVE;
@@ -308,14 +331,40 @@ function setActiveIndex(next) {
 
   // Interstitial videos: always restart on enter + attempt autoplay with sound.
   const isInterstitial = !!active?.classList?.contains("screen--interstitial");
+  const isVideoScreen = !!active?.classList?.contains("screen--video");
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:327',message:'checking isInterstitial',data:{isInterstitial:isInterstitial,isVideoScreen:isVideoScreen,active:active?true:false,activeClasses:active?.className||'null'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
+  // Track video screen index for orientation change preservation
+  if (isInterstitial || isVideoScreen) {
+    CURRENT_VIDEO_SCREEN_INDEX = ACTIVE;
+  } else {
+    CURRENT_VIDEO_SCREEN_INDEX = null;
+  }
+  
   if (LAST_INTERSTITIAL_SCREEN && LAST_INTERSTITIAL_SCREEN !== active) {
     const prev = INTERSTITIAL_BY_SCREEN.get(LAST_INTERSTITIAL_SCREEN);
     if (prev?.video) {
       try { prev.video.pause(); } catch {}
     }
   }
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:343',message:'before isInterstitial check',data:{isInterstitial:isInterstitial,willEnter:isInterstitial},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
   if (isInterstitial) {
-    attemptInterstitialPlayWithSound(active);
+    // Only preserve currentTime if we have a saved time (from orientation change)
+    // If savedVideoCurrentTime is null, let the video restart normally
+    const timeToRestore = savedVideoCurrentTime !== null ? savedVideoCurrentTime : null;
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:339',message:'calling attemptInterstitialPlayWithSound',data:{isInterstitial:isInterstitial,isPreservingVideoScreen:isPreservingVideoScreen,savedVideoCurrentTime:savedVideoCurrentTime,timeToRestore:timeToRestore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    attemptInterstitialPlayWithSound(active, timeToRestore);
     LAST_INTERSTITIAL_SCREEN = active;
   } else {
     LAST_INTERSTITIAL_SCREEN = null;
@@ -421,6 +470,11 @@ function onScroll() {
   const y = window.scrollY || window.pageYOffset || 0;
   const raw = y / Math.max(1, VIEWPORT_H);
   const idx = clamp(Math.round(raw), 0, SCREENS.length - 1);
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:431',message:'onScroll called',data:{scrollY:y,viewportH:VIEWPORT_H,raw:raw,calculatedIdx:idx,active:ACTIVE,isPreservingVideoScreen:typeof isPreservingVideoScreen!=='undefined'?isPreservingVideoScreen:null,resizeStartTime:typeof resizeStartTime!=='undefined'?resizeStartTime:null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
   setActiveIndex(idx);
 
   const p = clamp(raw / Math.max(1, SCREENS.length - 1), 0, 1);
@@ -496,8 +550,18 @@ function onResize() {
   // Preserve the user's relative scroll position (avoid "jumping" to the top of a screen).
   const prevH = Math.max(1, VIEWPORT_H);
   const y = window.scrollY || window.pageYOffset || 0;
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:506',message:'onResize called',data:{prevH:prevH,scrollY:y},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+  
   syncViewportUnits();
   const nextTop = (y / prevH) * VIEWPORT_H;
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:506',message:'onResize after syncViewportUnits',data:{newViewportH:VIEWPORT_H,nextTop:nextTop},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
+  
   window.scrollTo({ top: nextTop, behavior: "auto" });
   onScroll();
 }
@@ -1225,33 +1289,82 @@ function setSoundBtnState(btn, muted) {
   btn.setAttribute("aria-label", muted ? "Unmute" : "Mute");
 }
 
-async function attemptInterstitialPlayWithSound(screenEl) {
+async function attemptInterstitialPlayWithSound(screenEl, savedTime = null) {
   const rec = INTERSTITIAL_BY_SCREEN.get(screenEl);
   if (!rec?.video) return;
 
   const { video, overlay, soundBtn, wrap } = rec;
+  const preserveCurrentTime = savedTime !== null;
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'attemptInterstitialPlayWithSound called',data:{savedTime:savedTime,preserveCurrentTime:preserveCurrentTime,videoPaused:video.paused,videoCurrentTime:video.currentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
   try {
-    // Always restart when entering the screen.
+    // Only restart when entering the screen if not preserving currentTime
     try {
       video.pause();
-      video.currentTime = 0;
+      if (!preserveCurrentTime) {
+        video.currentTime = 0;
+      }
     } catch {}
 
     video.muted = false;
     video.volume = 1;
+    
+    // Restore saved currentTime if we have it (from orientation change)
+    if (preserveCurrentTime) {
+      try {
+        video.currentTime = savedTime;
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'restored video currentTime',data:{savedTime:savedTime,actualCurrentTime:video.currentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+      } catch {}
+    }
+    
     VIDEO_LOADING.schedule(video, wrap || screenEl.querySelector(".videoWrap"));
     await video.play();
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'video play succeeded',data:{videoPaused:video.paused,videoCurrentTime:video.currentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
     overlay?.classList.add("is-hidden");
     if (soundBtn) setSoundBtnState(soundBtn, video.muted);
-  } catch {
+  } catch (err) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'video play with sound failed, trying muted',data:{error:err?.message||'unknown',preserveCurrentTime:preserveCurrentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
     // If autoplay-with-sound fails, try muted autoplay (so motion still plays),
     // and show an overlay to allow a user gesture to enable sound.
     try {
       video.muted = true;
+      
+      // Restore saved currentTime if we have it (from orientation change)
+      if (preserveCurrentTime) {
+        try {
+          video.currentTime = savedTime;
+        } catch {}
+      }
+      
       VIDEO_LOADING.schedule(video, wrap || screenEl.querySelector(".videoWrap"));
       await video.play();
-    } catch {}
-    overlay?.classList.remove("is-hidden");
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'video muted play succeeded',data:{videoPaused:video.paused,videoCurrentTime:video.currentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
+      // If muted autoplay succeeds, keep overlay hidden
+      overlay?.classList.add("is-hidden");
+    } catch (err2) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:1268',message:'video muted play also failed',data:{error:err2?.message||'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
+      // If both attempts fail, show overlay so user can click to play
+      overlay?.classList.remove("is-hidden");
+    }
     if (soundBtn) setSoundBtnState(soundBtn, video.muted);
   }
 }
@@ -3810,8 +3923,31 @@ function boot() {
   mountImpactCarousel();
   bindMobileScrollSnap();
 
+  // Reset orientation change preservation state (variables are global)
+  savedScreenIndex = null;
+  savedScrollY = null;
+  savedVideoCurrentTime = null;
+  isPreservingVideoScreen = false;
+  resizeStartTime = 0;
+  
   window.addEventListener("scroll", () => {
     lastY = window.scrollY || window.pageYOffset || 0;
+    // Skip scroll updates if we're preserving a video screen during resize
+    // Also skip if we're within 1200ms of a resize start (to catch all scroll events during rotation)
+    // Extended to 1200ms to ensure scroll position is fully settled after orientation change
+    // The browser may take multiple frames to settle the scroll position
+    if (isPreservingVideoScreen || (resizeStartTime > 0 && Date.now() - resizeStartTime < 1200)) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3828',message:'scroll event blocked',data:{scrollY:lastY,isPreservingVideoScreen:isPreservingVideoScreen,resizeStartTime:resizeStartTime,timeSinceResize:resizeStartTime>0?Date.now()-resizeStartTime:0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
+      // Cancel any pending scroll RAF to prevent onScroll() from running
+      if (scrollRAF) {
+        cancelAnimationFrame(scrollRAF);
+        scrollRAF = 0;
+      }
+      return;
+    }
     if (scrollRAF) return;
     scrollRAF = requestAnimationFrame(() => {
       scrollRAF = 0;
@@ -3822,22 +3958,313 @@ function boot() {
   let RESIZE_CLEAR_T = 0;
   const scheduleResize = () => {
     document.body.classList.add("is-resizing");
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'scheduleResize called',data:{scrollY:window.scrollY||window.pageYOffset||0,viewportH:VIEWPORT_H,active:ACTIVE,currentVideoScreenIndex:CURRENT_VIDEO_SCREEN_INDEX,savedScreenIndex:savedScreenIndex,isPreservingVideoScreen:isPreservingVideoScreen},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
+    // Mark resize start time to prevent scroll updates during early resize phase
+    if (resizeStartTime === 0) {
+      resizeStartTime = Date.now();
+    }
+    
+    // If we already have a saved screen index (from orientationchange), restore immediately
+    if (savedScreenIndex !== null && isPreservingVideoScreen) {
+      // Cancel any pending scroll RAF immediately
+      if (scrollRAF) {
+        cancelAnimationFrame(scrollRAF);
+        scrollRAF = 0;
+      }
+      
+      // Restore immediately, don't wait for timeout
+      syncViewportUnits(); // Update VIEWPORT_H with new dimensions
+      const idx = clamp(savedScreenIndex, 0, SCREENS.length - 1);
+      const targetY = idx * VIEWPORT_H;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'scheduleResize restoring video screen (already saved)',data:{savedScreenIndex:savedScreenIndex,newViewportH:VIEWPORT_H,targetY:targetY,currentScrollY:window.scrollY||window.pageYOffset||0,savedScrollY:savedScrollY},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      // Temporarily set ACTIVE to -1 so setActiveIndex will definitely run and update DOM
+      // This ensures the DOM is in sync even if onScroll() already changed ACTIVE
+      const prevActive = ACTIVE;
+      ACTIVE = -1;
+      
+      // Restore scroll position - use multiple attempts to ensure it sticks
+      // The browser may fight us during orientation change, so we need to be persistent
+      let restoreAttempts = 0;
+      const MAX_RESTORE_ATTEMPTS = 10;
+      const restoreScroll = () => {
+        if (restoreAttempts >= MAX_RESTORE_ATTEMPTS) return;
+        restoreAttempts++;
+        window.scrollTo({ top: targetY, behavior: "auto" });
+        const actualY = window.scrollY || window.pageYOffset || 0;
+        if (Math.abs(actualY - targetY) > 5) {
+          // If still wrong, try again on next frame
+          requestAnimationFrame(restoreScroll);
+        }
+      };
+      restoreScroll();
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'scheduleResize after scrollTo',data:{targetY:targetY,actualScrollY:window.scrollY||window.pageYOffset||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      // Update DOM state - by setting ACTIVE to -1 first, setActiveIndex will definitely run
+      // and update all the DOM elements (dots, screen classes, etc.)
+      setActiveIndex(idx);
+      
+      // Verify ACTIVE is correct (setActiveIndex sets it, but be defensive)
+      if (ACTIVE !== idx) {
+        ACTIVE = idx;
+      }
+    } else if (savedScreenIndex === null) {
+      // Use the persistently tracked video screen index (updated in setActiveIndex)
+      // Fallback to checking ACTIVE directly if persistent index isn't available
+      let videoScreenIdx = CURRENT_VIDEO_SCREEN_INDEX;
+      
+      // Fallback: check ACTIVE directly if persistent index is null
+      if (videoScreenIdx === null && ACTIVE >= 0) {
+        const currentScreen = SCREENS[ACTIVE];
+        if (currentScreen) {
+          const isInterstitial = currentScreen.classList.contains("screen--interstitial");
+          const isVideoScreen = currentScreen.classList.contains("screen--video");
+          if (isInterstitial || isVideoScreen) {
+            videoScreenIdx = ACTIVE;
+          }
+        }
+      }
+      
+      if (videoScreenIdx !== null) {
+        savedScreenIndex = videoScreenIdx;
+        // Only preserve video screen during actual orientation changes (when savedVideoCurrentTime is set)
+        // For regular resizes, don't block scrolling - just restore scroll position normally
+        // Video time preservation is handled separately via savedVideoCurrentTime
+        isPreservingVideoScreen = savedVideoCurrentTime !== null;
+        
+        // Cancel any pending scroll RAF immediately
+        if (scrollRAF) {
+          cancelAnimationFrame(scrollRAF);
+          scrollRAF = 0;
+        }
+        
+        // Restore immediately, don't wait for timeout
+        syncViewportUnits(); // Update VIEWPORT_H with new dimensions
+        const idx = clamp(savedScreenIndex, 0, SCREENS.length - 1);
+        const targetY = idx * VIEWPORT_H;
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'scheduleResize restoring video screen (newly detected)',data:{savedScreenIndex:savedScreenIndex,newViewportH:VIEWPORT_H,targetY:targetY,currentScrollY:window.scrollY||window.pageYOffset||0,savedScrollY:savedScrollY},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
+        // Temporarily set ACTIVE to -1 so setActiveIndex will definitely run and update DOM
+        // This ensures the DOM is in sync even if onScroll() already changed ACTIVE
+        const prevActive = ACTIVE;
+        ACTIVE = -1;
+        
+        // Restore scroll position - use multiple attempts to ensure it sticks
+        // The browser may fight us during orientation change, so we need to be persistent
+        // Use a more aggressive approach: restore immediately and keep checking/restoring
+        let restoreAttempts = 0;
+        const MAX_RESTORE_ATTEMPTS = 20; // Increased attempts
+        const targetScreen = SCREENS[idx];
+        const restoreScroll = () => {
+          if (restoreAttempts >= MAX_RESTORE_ATTEMPTS) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'restoreScroll max attempts reached, trying scrollIntoView',data:{targetY:targetY,finalScrollY:window.scrollY||window.pageYOffset||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            // Fallback: try scrollIntoView on the target screen element
+            if (targetScreen) {
+              try {
+                targetScreen.scrollIntoView({ behavior: "auto", block: "start" });
+              } catch {}
+            }
+            return;
+          }
+          restoreAttempts++;
+          window.scrollTo({ top: targetY, behavior: "auto" });
+          const actualY = window.scrollY || window.pageYOffset || 0;
+          // #region agent log
+          if (restoreAttempts <= 3 || restoreAttempts % 5 === 0) {
+            fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'restoreScroll attempt',data:{attempt:restoreAttempts,targetY:targetY,actualY:actualY,diff:Math.abs(actualY-targetY)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+          }
+          // #endregion
+          if (Math.abs(actualY - targetY) > 5) {
+            // If still wrong, try again on next frame
+            requestAnimationFrame(restoreScroll);
+          }
+        };
+        // Start restoration immediately and continue in animation frames
+        window.scrollTo({ top: targetY, behavior: "auto" });
+        requestAnimationFrame(restoreScroll);
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3848',message:'scheduleResize after scrollTo',data:{targetY:targetY,actualScrollY:window.scrollY||window.pageYOffset||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
+        // Update DOM state - by setting ACTIVE to -1 first, setActiveIndex will definitely run
+        // and update all the DOM elements (dots, screen classes, etc.)
+        setActiveIndex(idx);
+        
+        // Verify ACTIVE is correct (setActiveIndex sets it, but be defensive)
+        if (ACTIVE !== idx) {
+          ACTIVE = idx;
+        }
+      }
+    }
+    
     if (RESIZE_T) window.clearTimeout(RESIZE_T);
     RESIZE_T = window.setTimeout(() => {
-      onResize();
-      // After resize settles, snap cleanly to the nearest screen (no in-between).
-      const idx = clamp(
-        Math.round((window.scrollY || window.pageYOffset || 0) / Math.max(1, VIEWPORT_H)),
-        0,
-        SCREENS.length - 1
-      );
-      window.scrollTo({ top: idx * VIEWPORT_H, behavior: "auto" });
-      onScroll();
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3908',message:'scheduleResize timeout fired',data:{savedScreenIndex:savedScreenIndex,isPreservingVideoScreen:isPreservingVideoScreen,scrollY:window.scrollY||window.pageYOffset||0,viewportH:VIEWPORT_H,active:ACTIVE},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      // If we have a saved screen index (from video screen resize), restore scroll position
+      // This applies to both orientation changes (isPreservingVideoScreen=true) and regular resizes (isPreservingVideoScreen=false)
+      if (savedScreenIndex !== null) {
+        syncViewportUnits(); // Update VIEWPORT_H again in case it changed
+        const idx = clamp(savedScreenIndex, 0, SCREENS.length - 1);
+        const targetY = idx * VIEWPORT_H;
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3908',message:'scheduleResize timeout restoring video screen',data:{idx:idx,targetY:targetY,currentY:currentY,diff:Math.abs(currentY-targetY),isPreservingVideoScreen:isPreservingVideoScreen},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
+        // Only adjust if we're off by more than a small threshold
+        if (Math.abs(currentY - targetY) > 10) {
+          // Use aggressive restoration same as immediate restoration
+          let restoreAttempts = 0;
+          const MAX_RESTORE_ATTEMPTS = 20;
+          const restoreScroll = () => {
+            if (restoreAttempts >= MAX_RESTORE_ATTEMPTS) return;
+            restoreAttempts++;
+            window.scrollTo({ top: targetY, behavior: "auto" });
+            const actualY = window.scrollY || window.pageYOffset || 0;
+            if (Math.abs(actualY - targetY) > 5) {
+              requestAnimationFrame(restoreScroll);
+            }
+          };
+          // Start restoration immediately and continue in animation frames
+          window.scrollTo({ top: targetY, behavior: "auto" });
+          requestAnimationFrame(restoreScroll);
+          
+          if (ACTIVE !== idx) {
+            ACTIVE = idx;
+            setActiveIndex(idx);
+          }
+        } else if (ACTIVE !== idx) {
+          // If scroll position is correct but ACTIVE is wrong, just update ACTIVE
+          ACTIVE = idx;
+          setActiveIndex(idx);
+        }
+        
+        // Reset flags after a longer delay to ensure scroll has settled
+        // Extended delay to 500ms to give more time for scroll position to stabilize
+        setTimeout(() => {
+          // Final check - if scroll position is still wrong, force it one more time
+          const finalY = window.scrollY || window.pageYOffset || 0;
+          const finalTargetY = idx * VIEWPORT_H;
+          if (Math.abs(finalY - finalTargetY) > 10) {
+            window.scrollTo({ top: finalTargetY, behavior: "auto" });
+          }
+          
+          savedScreenIndex = null;
+          savedScrollY = null;
+          savedVideoCurrentTime = null;
+          isPreservingVideoScreen = false;
+          resizeStartTime = 0;
+        }, 500);
+        
+        // Safety timeout: if preservation flags are still set after 2 seconds, reset them
+        // This prevents getting stuck if something goes wrong
+        setTimeout(() => {
+          if (isPreservingVideoScreen && savedScreenIndex === idx) {
+            savedScreenIndex = null;
+            savedScrollY = null;
+            savedVideoCurrentTime = null;
+            isPreservingVideoScreen = false;
+            // Don't reset resizeStartTime here as it might still be needed for scroll blocking
+          }
+        }, 2000);
+      } else {
+        onResize();
+        // After resize settles, snap cleanly to the nearest screen (no in-between).
+        const idx = clamp(
+          Math.round((window.scrollY || window.pageYOffset || 0) / Math.max(1, VIEWPORT_H)),
+          0,
+          SCREENS.length - 1
+        );
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3908',message:'scheduleResize timeout non-video snap',data:{calculatedIdx:idx,scrollY:window.scrollY||window.pageYOffset||0,viewportH:VIEWPORT_H},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        
+        window.scrollTo({ top: idx * VIEWPORT_H, behavior: "auto" });
+        onScroll();
+      }
 
       if (RESIZE_CLEAR_T) window.clearTimeout(RESIZE_CLEAR_T);
       RESIZE_CLEAR_T = window.setTimeout(() => document.body.classList.remove("is-resizing"), 60);
     }, 90);
   };
+  
+  // Also listen to orientationchange to prepare for resize
+  // This fires BEFORE resize events, so we can block onScroll() early
+  window.addEventListener("orientationchange", () => {
+    const currentScrollY = window.scrollY || window.pageYOffset || 0;
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3950',message:'orientationchange event',data:{scrollY:currentScrollY,viewportH:VIEWPORT_H,active:ACTIVE,currentVideoScreenIndex:CURRENT_VIDEO_SCREEN_INDEX,savedScreenIndex:savedScreenIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
+    // Cancel any pending scroll RAF immediately
+    if (scrollRAF) {
+      cancelAnimationFrame(scrollRAF);
+      scrollRAF = 0;
+    }
+    
+    // Mark resize start time immediately to block onScroll()
+    if (resizeStartTime === 0) {
+      resizeStartTime = Date.now();
+    }
+    
+    // Capture scroll position IMMEDIATELY before it changes
+    savedScrollY = currentScrollY;
+    
+    // Use the persistently tracked video screen index
+    if (savedScreenIndex === null && CURRENT_VIDEO_SCREEN_INDEX !== null) {
+      savedScreenIndex = CURRENT_VIDEO_SCREEN_INDEX;
+      isPreservingVideoScreen = true;
+      
+      // Save video's currentTime before orientation change
+      const currentScreen = SCREENS[CURRENT_VIDEO_SCREEN_INDEX];
+      if (currentScreen) {
+        const isInterstitial = currentScreen.classList.contains("screen--interstitial");
+        if (isInterstitial) {
+          const rec = INTERSTITIAL_BY_SCREEN.get(currentScreen);
+          if (rec?.video) {
+            try {
+              savedVideoCurrentTime = rec.video.currentTime;
+              // #region agent log
+              fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3950',message:'orientationchange saved video currentTime',data:{savedVideoCurrentTime:savedVideoCurrentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+              // #endregion
+            } catch {}
+          }
+        }
+      }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/cb17d751-e93c-4253-8964-9d82ef574c15',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'main.js:3950',message:'orientationchange saved video screen',data:{savedScreenIndex:savedScreenIndex,savedScrollY:savedScrollY,savedVideoCurrentTime:savedVideoCurrentTime},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      
+      // Set ACTIVE immediately to prevent onScroll() from changing it
+      if (ACTIVE !== CURRENT_VIDEO_SCREEN_INDEX) {
+        ACTIVE = CURRENT_VIDEO_SCREEN_INDEX;
+      }
+    }
+  }, { passive: true });
+  
   window.addEventListener("resize", scheduleResize, { passive: true });
   window.visualViewport?.addEventListener("resize", scheduleResize, { passive: true });
   window.addEventListener("keydown", onKeyDown);
