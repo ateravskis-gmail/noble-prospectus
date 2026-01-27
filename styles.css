@@ -92,7 +92,17 @@ body{
     -webkit-overflow-scrolling:auto;
     overscroll-behavior-y:contain;
     /* Prevent native touch actions - we handle scrolling manually */
+    /* touch-action: none prevents browser from starting its own momentum */
+    touch-action:none;
+  }
+  
+  /* Allow native scrolling in designated scroll zones */
+  .milestonesList{
     touch-action:pan-y;
+  }
+  
+  .impactCarousel__track{
+    touch-action:pan-x;
   }
 }
 

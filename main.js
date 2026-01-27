@@ -3710,12 +3710,28 @@ function bindMobileScrollSnap() {
   let scrollEndTimeout = null;
   let isPaging = false; // Transition lock to prevent double-advance
 
+  // Helper to check if touch started in an allowed native scroll zone
+  const isInAllowedScrollZone = (element) => {
+    return element?.closest(".milestonesList, .impactCarousel__track");
+  };
+
+  // Helper to check if element is a text input that should allow native scrolling/selection
+  const isTextInput = (element) => {
+    return element?.closest("input, textarea, select");
+  };
+
   const handleTouchStart = (e) => {
     // Ignore touch events while paging transition is in progress
     if (isPaging) return;
     
-    // Don't interfere with interactive elements
-    if (e.target.closest("button, a, input, textarea, select, [role='button']")) return;
+    // Allow native scrolling in designated scroll zones
+    if (isInAllowedScrollZone(e.target)) return;
+    
+    // Allow native behavior for text inputs (for scrolling/selection)
+    if (isTextInput(e.target)) return;
+    
+    // For buttons/links, we'll intercept swipes but allow taps
+    // (buttons/links are NOT exempted here - we handle them in touchMove/touchEnd)
     
     touchStartY = e.touches[0].clientY;
     touchStartX = e.touches[0].clientX;
@@ -3739,14 +3755,24 @@ function bindMobileScrollSnap() {
     
     if (!touchStartY) return;
     
-    // Don't prevent default on interactive elements
-    const isInteractive = e.target.closest("button, a, input, textarea, select, [role='button']");
-    if (isInteractive) return;
+    // Allow native scrolling in designated scroll zones
+    if (isInAllowedScrollZone(e.target)) return;
     
+    // Allow native behavior for text inputs (for scrolling/selection)
+    if (isTextInput(e.target)) return;
+    
+    // For buttons/links, we intercept swipes but allow taps
+    // Check if this is a horizontal swipe in impactCarousel (should be allowed)
     const touchMoveY = e.touches[0].clientY;
     const touchMoveX = e.touches[0].clientX;
     const deltaY = Math.abs(touchMoveY - touchStartY);
     const deltaX = Math.abs(touchMoveX - touchStartX);
+    
+    // If gesture started in impactCarousel and is clearly horizontal, allow it
+    const carouselElement = e.target.closest(".impactCarousel__track");
+    if (carouselElement && deltaX > deltaY * 2) {
+      return; // Allow horizontal scrolling in carousel
+    }
     
     // Once we've determined it's a vertical swipe, prevent default on ALL subsequent moves
     if (isVerticalSwipe) {
@@ -3754,12 +3780,12 @@ function bindMobileScrollSnap() {
       return;
     }
     
-    // Be extremely aggressive: prevent default on ANY vertical movement
+    // Be aggressive: prevent default on vertical movement
     // Only allow native scrolling if it's VERY clearly horizontal (deltaX >> deltaY)
-    // This stops iOS momentum before it can start
-    if (deltaY > 1) {
+    // Use a small threshold (3px) to avoid blocking taps while still catching swipes early
+    if (deltaY > 3) {
       // If horizontal movement isn't at least 3x vertical, treat as vertical swipe
-      // This catches vertical swipes immediately, before iOS can start scrolling
+      // This catches vertical swipes early, before iOS can start scrolling
       if (deltaX < deltaY * 3) {
         isVerticalSwipe = true;
         // Prevent native scroll immediately to stop iOS momentum before it starts
@@ -3776,7 +3802,19 @@ function bindMobileScrollSnap() {
       return;
     }
     
-    if (!touchStartY || !isVerticalSwipe) {
+    // If gesture was in allowed scroll zone, don't interfere
+    if (isInAllowedScrollZone(e.target)) {
+      touchStartY = 0;
+      return;
+    }
+    
+    // If gesture was in text input, don't interfere
+    if (isTextInput(e.target)) {
+      touchStartY = 0;
+      return;
+    }
+    
+    if (!touchStartY) {
       touchStartY = 0;
       return;
     }
@@ -3784,8 +3822,15 @@ function bindMobileScrollSnap() {
     const touchEndY = e.changedTouches[0].clientY;
     const swipeDistance = touchStartY - touchEndY;
     const swipeTime = Date.now() - touchStartTime;
-    const minSwipeDistance = 10; // Reduced minimum distance for more responsive feel
+    const minSwipeDistance = 10; // Minimum distance for a swipe
     const maxSwipeTime = 500; // Maximum time for a swipe gesture
+
+    // If it wasn't a vertical swipe, or the swipe was too small, allow click events
+    // This ensures buttons/links can still be clicked on taps
+    if (!isVerticalSwipe || Math.abs(swipeDistance) <= minSwipeDistance || swipeTime >= maxSwipeTime) {
+      touchStartY = 0;
+      return;
+    }
 
     // Only handle clear swipe gestures
     if (Math.abs(swipeDistance) > minSwipeDistance && swipeTime < maxSwipeTime) {
