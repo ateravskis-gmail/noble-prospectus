@@ -3706,13 +3706,19 @@ function bindMobileScrollSnap() {
   let touchStartX = 0;
   let touchStartTime = 0;
   let touchStartScrollY = 0;
+  let touchStartElement = null; // Track the element where touch started
   let isVerticalSwipe = false;
   let scrollEndTimeout = null;
   let isPaging = false; // Transition lock to prevent double-advance
 
   // Helper to check if touch started in an allowed native scroll zone
   const isInAllowedScrollZone = (element) => {
-    return element?.closest(".milestonesList, .impactCarousel__track");
+    return element?.closest(".milestonesList");
+  };
+  
+  // Helper to check if touch started in the impact carousel
+  const isInImpactCarousel = (element) => {
+    return element?.closest(".impactCarousel, .impactCarousel__track, .impactCarousel__card");
   };
 
   // Helper to check if element is a text input that should allow native scrolling/selection
@@ -3724,11 +3730,18 @@ function bindMobileScrollSnap() {
     // Ignore touch events while paging transition is in progress
     if (isPaging) return;
     
-    // Allow native scrolling in designated scroll zones
+    // Store the element where touch started for later reference
+    touchStartElement = e.target;
+    
+    // Allow native scrolling in designated scroll zones (milestonesList)
     if (isInAllowedScrollZone(e.target)) return;
     
     // Allow native behavior for text inputs (for scrolling/selection)
     if (isTextInput(e.target)) return;
+    
+    // If touch starts in impact carousel, allow native scrolling (both vertical and horizontal)
+    // This lets users scroll the page vertically when swiping on the carousel
+    if (isInImpactCarousel(e.target)) return;
     
     // For buttons/links, we'll intercept swipes but allow taps
     // (buttons/links are NOT exempted here - we handle them in touchMove/touchEnd)
@@ -3753,26 +3766,24 @@ function bindMobileScrollSnap() {
       return;
     }
     
+    // If gesture started in impact carousel, allow native scrolling (both directions)
+    // This allows users to scroll the page vertically when swiping on carousel
+    if (touchStartElement && isInImpactCarousel(touchStartElement)) {
+      return; // Allow native scrolling
+    }
+    
     if (!touchStartY) return;
     
-    // Allow native scrolling in designated scroll zones
+    // Allow native scrolling in designated scroll zones (milestonesList)
     if (isInAllowedScrollZone(e.target)) return;
     
     // Allow native behavior for text inputs (for scrolling/selection)
     if (isTextInput(e.target)) return;
     
-    // For buttons/links, we intercept swipes but allow taps
-    // Check if this is a horizontal swipe in impactCarousel (should be allowed)
     const touchMoveY = e.touches[0].clientY;
     const touchMoveX = e.touches[0].clientX;
     const deltaY = Math.abs(touchMoveY - touchStartY);
     const deltaX = Math.abs(touchMoveX - touchStartX);
-    
-    // If gesture started in impactCarousel and is clearly horizontal, allow it
-    const carouselElement = e.target.closest(".impactCarousel__track");
-    if (carouselElement && deltaX > deltaY * 2) {
-      return; // Allow horizontal scrolling in carousel
-    }
     
     // Once we've determined it's a vertical swipe, prevent default on ALL subsequent moves
     if (isVerticalSwipe) {
@@ -3799,23 +3810,34 @@ function bindMobileScrollSnap() {
     // Ignore touch events while paging transition is in progress
     if (isPaging) {
       touchStartY = 0;
+      touchStartElement = null;
+      return;
+    }
+    
+    // If gesture started in impact carousel, allow native scrolling
+    if (touchStartElement && isInImpactCarousel(touchStartElement)) {
+      touchStartY = 0;
+      touchStartElement = null;
       return;
     }
     
     // If gesture was in allowed scroll zone, don't interfere
     if (isInAllowedScrollZone(e.target)) {
       touchStartY = 0;
+      touchStartElement = null;
       return;
     }
     
     // If gesture was in text input, don't interfere
     if (isTextInput(e.target)) {
       touchStartY = 0;
+      touchStartElement = null;
       return;
     }
     
     if (!touchStartY) {
       touchStartY = 0;
+      touchStartElement = null;
       return;
     }
 
@@ -3829,6 +3851,7 @@ function bindMobileScrollSnap() {
     // This ensures buttons/links can still be clicked on taps
     if (!isVerticalSwipe || Math.abs(swipeDistance) <= minSwipeDistance || swipeTime >= maxSwipeTime) {
       touchStartY = 0;
+      touchStartElement = null;
       return;
     }
 
@@ -3894,6 +3917,7 @@ function bindMobileScrollSnap() {
     }
 
     touchStartY = 0;
+    touchStartElement = null;
   };
 
   // Also handle scroll end to snap to nearest screen (catches any remaining momentum)

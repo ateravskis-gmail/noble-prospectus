@@ -101,8 +101,11 @@ body{
     touch-action:pan-y;
   }
   
-  .impactCarousel__track{
-    touch-action:pan-x;
+  /* Impact carousel: allow both vertical (page scroll) and horizontal (carousel scroll) */
+  .impactCarousel,
+  .impactCarousel__track,
+  .impactCarousel__card{
+    touch-action:pan-x pan-y;
   }
 }
 
