@@ -3693,16 +3693,22 @@ function bindMobileScrollSnap() {
   if (!isMobile()) return;
 
   let touchStartY = 0;
+  let touchStartX = 0;
   let touchStartTime = 0;
   let touchStartScrollY = 0;
   let isVerticalSwipe = false;
   let scrollEndTimeout = null;
+  let isPaging = false; // Transition lock to prevent double-advance
 
   const handleTouchStart = (e) => {
+    // Ignore touch events while paging transition is in progress
+    if (isPaging) return;
+    
     // Don't interfere with interactive elements
     if (e.target.closest("button, a, input, textarea, select, [role='button']")) return;
     
     touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
     touchStartTime = Date.now();
     touchStartScrollY = window.scrollY || window.pageYOffset || 0;
     isVerticalSwipe = false;
@@ -3715,20 +3721,51 @@ function bindMobileScrollSnap() {
   };
 
   const handleTouchMove = (e) => {
+    // Always prevent default during paging to block any residual momentum
+    if (isPaging) {
+      e.preventDefault();
+      return;
+    }
+    
     if (!touchStartY) return;
+    
+    // Don't prevent default on interactive elements
+    const isInteractive = e.target.closest("button, a, input, textarea, select, [role='button']");
+    if (isInteractive) return;
     
     const touchMoveY = e.touches[0].clientY;
     const touchMoveX = e.touches[0].clientX;
     const deltaY = Math.abs(touchMoveY - touchStartY);
-    const deltaX = Math.abs(touchMoveX - (e.touches[0].clientX || touchStartY));
+    const deltaX = Math.abs(touchMoveX - touchStartX);
     
-    // Determine if this is a vertical swipe
-    if (deltaY > 10 && deltaY > deltaX * 1.5) {
-      isVerticalSwipe = true;
+    // Once we've determined it's a vertical swipe, prevent default on ALL subsequent moves
+    if (isVerticalSwipe) {
+      e.preventDefault();
+      return;
+    }
+    
+    // Be extremely aggressive: prevent default on ANY vertical movement
+    // Only allow native scrolling if it's VERY clearly horizontal (deltaX >> deltaY)
+    // This stops iOS momentum before it can start
+    if (deltaY > 1) {
+      // If horizontal movement isn't at least 3x vertical, treat as vertical swipe
+      // This catches vertical swipes immediately, before iOS can start scrolling
+      if (deltaX < deltaY * 3) {
+        isVerticalSwipe = true;
+        // Prevent native scroll immediately to stop iOS momentum before it starts
+        // This is the critical fix - prevents iOS from starting its own scroll
+        e.preventDefault();
+      }
     }
   };
 
   const handleTouchEnd = (e) => {
+    // Ignore touch events while paging transition is in progress
+    if (isPaging) {
+      touchStartY = 0;
+      return;
+    }
+    
     if (!touchStartY || !isVerticalSwipe) {
       touchStartY = 0;
       return;
@@ -3737,7 +3774,7 @@ function bindMobileScrollSnap() {
     const touchEndY = e.changedTouches[0].clientY;
     const swipeDistance = touchStartY - touchEndY;
     const swipeTime = Date.now() - touchStartTime;
-    const minSwipeDistance = 30; // Minimum distance for a swipe
+    const minSwipeDistance = 10; // Reduced minimum distance for more responsive feel
     const maxSwipeTime = 500; // Maximum time for a swipe gesture
 
     // Only handle clear swipe gestures
@@ -3762,32 +3799,54 @@ function bindMobileScrollSnap() {
 
       // Move to target screen with smooth transition
       if (targetIndex !== currentIndex) {
+        // Set paging lock before transition
+        isPaging = true;
+        
+        // Stop any ongoing scroll immediately (single call, no delay)
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        window.scrollTo({ top: currentY, behavior: "auto" });
+        
+        // Start the new scroll immediately - no delay for instant response
         goToIndex(targetIndex);
+        
+        // Clear paging lock after scroll transition completes
+        // Smooth scroll typically takes ~600ms, add small buffer for settle time
+        const scrollDuration = prefersReducedMotion() ? 0 : 600;
+        setTimeout(() => {
+          isPaging = false;
+        }, scrollDuration + 100);
       }
     } else {
       // For smaller movements, snap to nearest screen after scroll settles
-      scrollEndTimeout = setTimeout(() => {
-        const currentY = window.scrollY || window.pageYOffset || 0;
-        const currentIndex = clamp(
-          Math.round(currentY / Math.max(1, VIEWPORT_H)),
-          0,
-          SCREENS.length - 1
-        );
-        const targetY = currentIndex * VIEWPORT_H;
-        
-        // Only snap if we're not already at the target (with some tolerance)
-        if (Math.abs(currentY - targetY) > 20) {
-          window.scrollTo({ top: targetY, behavior: prefersReducedMotion() ? "auto" : "smooth" });
-        }
-        scrollEndTimeout = null;
-      }, 200);
+      // Only do this if not paging (safety net)
+      if (!isPaging) {
+        scrollEndTimeout = setTimeout(() => {
+          const currentY = window.scrollY || window.pageYOffset || 0;
+          const currentIndex = clamp(
+            Math.round(currentY / Math.max(1, VIEWPORT_H)),
+            0,
+            SCREENS.length - 1
+          );
+          const targetY = currentIndex * VIEWPORT_H;
+          
+          // Only snap if we're not already at the target (with some tolerance)
+          if (Math.abs(currentY - targetY) > 20) {
+            window.scrollTo({ top: targetY, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+          }
+          scrollEndTimeout = null;
+        }, 200);
+      }
     }
 
     touchStartY = 0;
   };
 
   // Also handle scroll end to snap to nearest screen (catches any remaining momentum)
+  // Only run when NOT paging to avoid interference with Reels-style one-swipe behavior
   const handleScrollEnd = () => {
+    // Skip snap logic if we're in the middle of a paging transition
+    if (isPaging) return;
+    
     if (scrollEndTimeout) clearTimeout(scrollEndTimeout);
     
     scrollEndTimeout = setTimeout(() => {
@@ -3808,11 +3867,14 @@ function bindMobileScrollSnap() {
   };
 
   // Add touch event listeners
+  // Use capture phase for touchmove to catch events early and prevent default before they bubble
   document.addEventListener("touchstart", handleTouchStart, { passive: true });
-  document.addEventListener("touchmove", handleTouchMove, { passive: true });
+  // Make touchmove non-passive so we can call preventDefault() to stop native scroll
+  // Use capture phase to intercept events before they reach other handlers
+  document.addEventListener("touchmove", handleTouchMove, { passive: false, capture: true });
   document.addEventListener("touchend", handleTouchEnd, { passive: true });
   
-  // Add scroll listener for snap behavior (catches momentum scrolling)
+  // Add scroll listener for snap behavior (safety net only when not paging)
   window.addEventListener("scroll", handleScrollEnd, { passive: true });
 }
 

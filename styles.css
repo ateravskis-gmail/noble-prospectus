@@ -91,6 +91,8 @@ body{
   html,body{
     -webkit-overflow-scrolling:auto;
     overscroll-behavior-y:contain;
+    /* Prevent native touch actions - we handle scrolling manually */
+    touch-action:pan-y;
   }
 }
 
