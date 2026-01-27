@@ -3689,8 +3689,18 @@ function mountImpactCarousel() {
 }
 
 // ---- Mobile Scroll Snap (disable inertial scrolling) ----
+// Store references to handlers for cleanup
+let mobileScrollSnapHandlers = null;
+
 function bindMobileScrollSnap() {
-  if (!isMobile()) return;
+  if (!isMobile()) {
+    // Clean up if we're no longer on mobile
+    unbindMobileScrollSnap();
+    return;
+  }
+
+  // If already bound, clean up first to avoid duplicates
+  unbindMobileScrollSnap();
 
   let touchStartY = 0;
   let touchStartX = 0;
@@ -3866,6 +3876,14 @@ function bindMobileScrollSnap() {
     }, 150);
   };
 
+  // Store handler references for cleanup
+  const handlers = {
+    touchStart: handleTouchStart,
+    touchMove: handleTouchMove,
+    touchEnd: handleTouchEnd,
+    scrollEnd: handleScrollEnd
+  };
+
   // Add touch event listeners
   // Use capture phase for touchmove to catch events early and prevent default before they bubble
   document.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -3876,6 +3894,24 @@ function bindMobileScrollSnap() {
   
   // Add scroll listener for snap behavior (safety net only when not paging)
   window.addEventListener("scroll", handleScrollEnd, { passive: true });
+
+  // Store handlers for cleanup
+  mobileScrollSnapHandlers = handlers;
+}
+
+function unbindMobileScrollSnap() {
+  if (!mobileScrollSnapHandlers) return;
+
+  // Remove all event listeners
+  document.removeEventListener("touchstart", mobileScrollSnapHandlers.touchStart, { passive: true });
+  document.removeEventListener("touchmove", mobileScrollSnapHandlers.touchMove, { passive: false, capture: true });
+  document.removeEventListener("touchend", mobileScrollSnapHandlers.touchEnd, { passive: true });
+  window.removeEventListener("scroll", mobileScrollSnapHandlers.scrollEnd, { passive: true });
+
+  // Note: We can't clear scrollEndTimeout here as it's scoped within bindMobileScrollSnap
+  // But it will be cleared naturally when the function is called again
+
+  mobileScrollSnapHandlers = null;
 }
 
 // ---- Boot ----
@@ -4150,6 +4186,8 @@ function boot() {
         );
         window.scrollTo({ top: idx * VIEWPORT_H, behavior: "auto" });
         onScroll();
+        // Re-bind mobile scroll snap after resize to ensure listeners are active
+        bindMobileScrollSnap();
       }
 
       if (RESIZE_CLEAR_T) window.clearTimeout(RESIZE_CLEAR_T);
@@ -4160,6 +4198,11 @@ function boot() {
   // Also listen to orientationchange to prepare for resize
   // This fires BEFORE resize events, so we can block onScroll() early
   window.addEventListener("orientationchange", () => {
+    // Re-bind mobile scroll snap after orientation change settles
+    // Use a small delay to ensure viewport has updated
+    setTimeout(() => {
+      bindMobileScrollSnap();
+    }, 100);
     const currentScrollY = window.scrollY || window.pageYOffset || 0;
     
     // Cancel any pending scroll RAF immediately

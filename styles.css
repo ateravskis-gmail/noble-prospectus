@@ -4172,9 +4172,8 @@ body.chrome-hidden .topProgress{opacity:0}
   .p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
   .term__v{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
   .ask__sub{font-size:clamp(0.85rem, 0.95625vw, 0.95625rem) !important;}
-  .projectsTabPanel__description{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
-  .projectsTabPanel__details{font-size:clamp(0.9375rem, 1.0625vw, 1.0rem) !important;}
-  .ncnTabPanel .p{font-size:clamp(1.0rem, 1.125vw, 1.125rem) !important;}
+  /* Removed projectsTabPanel and ncnTabPanel font-size rules to prevent doubling on orientation change */
+  /* .projectsTabPanel__description, .projectsTabPanel__details, and .ncnTabPanel .p inherit from @media (max-width: 2000px) */
   .quoteCard__small{font-size:clamp(0.9375rem, 1.0625vw, 1.0rem) !important;}
   .ending__word{font-size:clamp(1.15rem, 1.375vw, 1.4375rem) !important;}
   .quoteCard__big{font-size:clamp(1.0875rem, 1.375vw, 1.3125rem) !important;}
