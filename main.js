@@ -1874,9 +1874,9 @@ const MILESTONES = [
   },
   {
     kicker: "The Heart Mender",
-    title: "$1.25M Equity Secured",
+    title: "$1.75M Equity Secured",
     tag: "THE HEART MENDER",
-    body: "We’ve successfully raised $1.25M for our WWII feature film The Heart Mender, and we’ve attached our friend David Henrie to star.",
+    body: "We’ve successfully raised $1.75M for our WWII feature film The Heart Mender, and we’ve attached our friend David Henrie to star.",
     media: {
       type: "video",
       src: "./assets/THMposter.mp4",
@@ -2131,6 +2131,110 @@ function mountMilestones() {
       pauseAll();
     },
   };
+}
+
+function mountHistoryEvents() {
+  const section = document.querySelector(".historyEventsScreen");
+  const grid = section?.querySelector(".historyEventsGrid");
+  const tabs = document.getElementById("historyEventsMobileTabs");
+  const image = document.getElementById("historyEventsMobileImage");
+  const panel = document.getElementById("historyEventsMobilePanel");
+  if (!section || !grid || !tabs || !image || !panel) return;
+
+  const cards = Array.from(grid.querySelectorAll(".historyEventCard"));
+  if (!cards.length) return;
+
+  const events = cards.map((card, index) => {
+    const img = card.querySelector(".historyEventCard__image");
+    const eyebrow = card.querySelector(".historyEventCard__eyebrow")?.textContent?.trim() || "";
+    const title = card.querySelector(".historyEventCard__title")?.textContent?.trim() || `Event ${index + 1}`;
+    const body = card.querySelector(".historyEventCard__text")?.textContent?.trim() || "";
+    return {
+      label: card.dataset.tabLabel?.trim() || `#${index + 1}`,
+      eyebrow,
+      title,
+      body,
+      imgSrc: img?.getAttribute("src") || "",
+      imgAlt: img?.getAttribute("alt") || "",
+    };
+  });
+
+  tabs.innerHTML = "";
+
+  const tabButtons = events.map((event, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = `history-events-tab-${index}`;
+    btn.className = "historyEventsMobile__tab";
+    btn.dataset.index = String(index);
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", "false");
+    btn.setAttribute("aria-controls", "historyEventsMobilePanel");
+    btn.tabIndex = -1;
+    btn.textContent = event.label;
+    btn.addEventListener("click", () => setActive(index));
+    btn.addEventListener("focus", () => setActive(index));
+    tabs.appendChild(btn);
+    return btn;
+  });
+
+  let activeIndex = 0;
+
+  const renderPanel = (event) => {
+    panel.innerHTML = "";
+
+    const eyebrow = document.createElement("div");
+    eyebrow.className = "historyEventsMobile__eyebrow";
+    eyebrow.textContent = event.eyebrow;
+
+    const title = document.createElement("h3");
+    title.className = "historyEventsMobile__title";
+    title.textContent = event.title;
+
+    const body = document.createElement("p");
+    body.className = "historyEventsMobile__body";
+    body.textContent = event.body;
+
+    panel.appendChild(eyebrow);
+    panel.appendChild(title);
+    panel.appendChild(body);
+  };
+
+  const setActive = (index) => {
+    activeIndex = clamp(index, 0, events.length - 1);
+    const activeEvent = events[activeIndex];
+
+    image.src = activeEvent.imgSrc;
+    image.alt = activeEvent.imgAlt;
+
+    for (let i = 0; i < tabButtons.length; i++) {
+      const isActive = i === activeIndex;
+      tabButtons[i].classList.toggle("is-active", isActive);
+      tabButtons[i].setAttribute("aria-selected", isActive ? "true" : "false");
+      tabButtons[i].tabIndex = isActive ? 0 : -1;
+    }
+
+    panel.setAttribute("aria-labelledby", tabButtons[activeIndex].id);
+    renderPanel(activeEvent);
+  };
+
+  tabs.addEventListener("keydown", (e) => {
+    const key = e.key;
+    if (key !== "ArrowRight" && key !== "ArrowLeft" && key !== "ArrowDown" && key !== "ArrowUp" && key !== "Home" && key !== "End") return;
+    e.preventDefault();
+
+    let next = activeIndex;
+    if (key === "ArrowRight" || key === "ArrowDown") next = activeIndex + 1;
+    if (key === "ArrowLeft" || key === "ArrowUp") next = activeIndex - 1;
+    if (key === "Home") next = 0;
+    if (key === "End") next = events.length - 1;
+    next = clamp(next, 0, events.length - 1);
+
+    setActive(next);
+    tabButtons[next]?.focus();
+  });
+
+  setActive(0);
 }
 
 // ---- Screen 7: Terms (mobile button interface) ----
@@ -4012,6 +4116,7 @@ function boot() {
   setupVideo();
   setupInterstitialVideos();
   mountMilestones();
+  mountHistoryEvents();
   mountTerms();
   mountProjects();
   bindNcnPillars();
