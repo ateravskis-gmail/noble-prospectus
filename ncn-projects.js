@@ -118,6 +118,7 @@ const __nsNcnProjectsMount = () => (function () {
     host.id = "ncnProjectsV2";
 
     // Media
+    const mediaColumn = el("div", "projectsMediaColumn");
     const media = el("div", "projectsMedia");
     media.setAttribute("aria-label", "Project media");
     const stage = el("div", "projectsMedia__stage");
@@ -125,6 +126,9 @@ const __nsNcnProjectsMount = () => (function () {
     stage.setAttribute("aria-hidden", "true");
     media.appendChild(stage);
     media.appendChild(el("div", "projectsMedia__meta"));
+    const distributionHost = el("div", "projectsDistribution");
+    mediaColumn.appendChild(media);
+    mediaColumn.appendChild(distributionHost);
 
     // Panel
     const panel = el("div", "projectsPanel");
@@ -135,7 +139,7 @@ const __nsNcnProjectsMount = () => (function () {
     panel.appendChild(list);
     panel.appendChild(el("div", "projectsHint subtle", "Hover or focus a project to preview"));
 
-    host.appendChild(media);
+    host.appendChild(mediaColumn);
     host.appendChild(panel);
 
     // Insert into the existing frame, right after the H2
@@ -151,6 +155,7 @@ const __nsNcnProjectsMount = () => (function () {
 
     const itemBtns = [];
     const stageItems = [];
+    const distributionItems = [];
 
     for (let i = 0; i < data.length; i++) {
       const p = data[i];
@@ -183,6 +188,44 @@ const __nsNcnProjectsMount = () => (function () {
 
       stage.appendChild(mediaWrap);
       stageItems[i] = mediaWrap;
+
+      const distributionPartners = Array.isArray(p.partners)
+        ? p.partners.filter((partner) => partner?.logo)
+        : [];
+      if (distributionPartners.length) {
+        const distribution = el("div", "projectsDistribution__item");
+        distribution.dataset.index = String(i);
+        distribution.appendChild(el(
+          "div",
+          "projectsDistribution__label",
+          distributionPartners.length === 1 ? "Distribution Partner" : "Distribution Partners"
+        ));
+
+        const logos = el("div", "projectsDistribution__logos");
+        distributionPartners.forEach((partner) => {
+          const logoWrap = partner.href ? document.createElement("a") : document.createElement("div");
+          logoWrap.className = "projectsDistribution__logoWrap";
+          if (partner.href) {
+            logoWrap.href = partner.href;
+            logoWrap.target = "_blank";
+            logoWrap.rel = "noopener noreferrer";
+            logoWrap.setAttribute("aria-label", partner.name);
+          }
+
+          const logo = document.createElement("img");
+          logo.className = "projectsDistribution__logo";
+          logo.src = partner.logo;
+          logo.alt = partner.name;
+          logo.loading = "lazy";
+          logo.decoding = "async";
+          logoWrap.appendChild(logo);
+          logos.appendChild(logoWrap);
+        });
+
+        distribution.appendChild(logos);
+        distributionHost.appendChild(distribution);
+        distributionItems[i] = distribution;
+      }
 
       // Tab button
       const tabBtn = document.createElement("button");
@@ -254,22 +297,27 @@ const __nsNcnProjectsMount = () => (function () {
         tabPanel.appendChild(links);
       }
 
-      // "Brand Sponsors" + "Produced" (under CTAs)
+      // "Partners" + "Brand Sponsors" + "Milestones" + "Produced" (under CTAs)
+      const nonLogoPartners = Array.isArray(p.partners)
+        ? p.partners.filter((partner) => !partner?.logo)
+        : [];
+      const hasPartners = nonLogoPartners.length > 0;
       const hasSponsors = Array.isArray(p.sponsors) && p.sponsors.length > 0;
+      const hasMilestones = Array.isArray(p.milestones) && p.milestones.length > 0;
       const hasProduced = Array.isArray(p.produced) && p.produced.length > 0;
-      if (hasSponsors || hasProduced) {
+      if (hasPartners || hasSponsors || hasMilestones || hasProduced) {
         const more = el("div", "projectsTabPanel__more");
 
-        if (hasSponsors) {
+        const appendLogoSection = (label, items) => {
           const section = el("div", "projectMeta");
-          section.appendChild(el("div", "projectMeta__k", "Brand Sponsors"));
+          section.appendChild(el("div", "projectMeta__k", label));
 
           const row = el("div", "projectMeta__logos");
-          p.sponsors.forEach((s) => {
-            if (!s || !s.name) return;
-            const label = String(s.name);
-            const href = s.href ? String(s.href) : "";
-            const logo = s.logo ? String(s.logo) : "";
+          items.forEach((item) => {
+            if (!item || !item.name) return;
+            const itemLabel = String(item.name);
+            const href = item.href ? String(item.href) : "";
+            const logo = item.logo ? String(item.logo) : "";
 
             const wrap = href ? document.createElement("a") : document.createElement("div");
             wrap.className = "projectMeta__logoWrap";
@@ -277,22 +325,44 @@ const __nsNcnProjectsMount = () => (function () {
               wrap.href = href;
               wrap.target = "_blank";
               wrap.rel = "noopener noreferrer";
-              wrap.setAttribute("aria-label", label);
+              wrap.setAttribute("aria-label", itemLabel);
             }
 
             if (logo) {
               const img = document.createElement("img");
               img.className = "projectMeta__logo";
               img.src = logo;
-              img.alt = label;
+              img.alt = itemLabel;
               img.loading = "lazy";
               img.decoding = "async";
               wrap.appendChild(img);
             } else {
-              wrap.appendChild(el("span", "projectMeta__pill", label));
+              wrap.appendChild(el("span", "projectMeta__pill", itemLabel));
             }
 
             row.appendChild(wrap);
+          });
+
+          section.appendChild(row);
+          more.appendChild(section);
+        };
+
+        if (hasPartners) appendLogoSection("Partners", nonLogoPartners);
+        if (hasSponsors) appendLogoSection("Brand Sponsors", p.sponsors);
+
+        if (hasMilestones) {
+          const section = el("div", "projectMeta");
+          section.appendChild(el("div", "projectMeta__k", "Milestones"));
+
+          const row = el("div", "projectMeta__logos");
+          p.milestones.forEach((milestone) => {
+            if (!milestone || !milestone.title) return;
+
+            const label = milestone.kind
+              ? `${milestone.title} - ${milestone.kind}`
+              : String(milestone.title);
+            const pill = el("span", "projectMeta__pill", label);
+            row.appendChild(pill);
           });
 
           section.appendChild(row);
@@ -372,6 +442,7 @@ const __nsNcnProjectsMount = () => (function () {
         panel.classList.toggle("is-active", isActive);
         panel.setAttribute("aria-hidden", String(!isActive));
         stageItems[idx]?.classList.toggle("is-active", isActive);
+        distributionItems[idx]?.classList.toggle("is-active", isActive);
 
         // Pause non-active videos to reduce CPU
         const v = stageItems[idx]?.querySelector("video");

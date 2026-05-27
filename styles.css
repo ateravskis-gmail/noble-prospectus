@@ -1221,12 +1221,12 @@ body.chrome-hidden .topProgress{opacity:0}
   background:rgba(0,0,0,.18);
   border:1px solid rgba(255,255,255,.10);
   border-radius:18px;
-  padding:var(--space-6) var(--space-6);
+  padding:var(--space-5) var(--space-5);
   cursor:pointer;
-  transition:border-color .22s var(--ease), background .22s var(--ease), transform .22s var(--ease), box-shadow .22s var(--ease);
+  transition:border-color .22s var(--ease), background .22s var(--ease), box-shadow .22s var(--ease);
   position:relative;
   display:grid;
-  gap:var(--space-4);
+  gap:0;
 }
 .milestonesItem::before{
   content:"";
@@ -1242,7 +1242,7 @@ body.chrome-hidden .topProgress{opacity:0}
   justify-content:space-between;
   gap:var(--space-5);
   padding-left:calc(var(--space-8) + var(--space-4));
-  align-items:baseline;
+  align-items:center;
 }
 .milestonesItem__title{
   font-weight:850;
@@ -1259,16 +1259,21 @@ body.chrome-hidden .topProgress{opacity:0}
   padding:var(--space-3) var(--space-5);
   border-radius:999px;
   flex:0 0 auto;
+  white-space:nowrap;
 }
 .milestonesItem__body{
   padding-left:calc(var(--space-8) + var(--space-4));
   color:rgba(255,255,255,.84);
   line-height:1.45;
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  margin-top:0;
+  transition:max-height .34s var(--ease), opacity .24s var(--ease), margin-top .24s var(--ease);
 }
 .milestonesItem:hover{
   border-color:rgba(255,255,255,.22);
   background:rgba(255,255,255,.06);
-  transform:translateY(-1px);
 }
 .milestonesItem:focus-visible{
   outline:none;
@@ -1278,6 +1283,14 @@ body.chrome-hidden .topProgress{opacity:0}
 .milestonesItem.is-active{
   border-color:rgba(240,175,45,.45);
   background:rgba(240,175,45,.08);
+}
+.milestonesItem.is-active .milestonesItem__head{
+  align-items:baseline;
+}
+.milestonesItem.is-active .milestonesItem__body{
+  max-height:12rem;
+  opacity:1;
+  margin-top:var(--space-4);
 }
 .milestonesItem.is-active::before{
   background:rgba(240,175,45,.92);
@@ -2158,10 +2171,18 @@ body.chrome-hidden .topProgress{opacity:0}
   }
 }
 
+.projectsMediaColumn{
+  display:grid;
+  gap:14px;
+  width:336px;
+  max-width:336px;
+  flex-shrink:0;
+}
 .projectsMedia{
   aspect-ratio:2/3;
   max-height:var(--projects-h);
-  width:336px;
+  width:100%;
+  box-sizing:border-box;
   flex-shrink:0;
   border-radius:22px;
   border:1px solid rgba(255,255,255,.12);
@@ -2172,7 +2193,8 @@ body.chrome-hidden .topProgress{opacity:0}
   isolation:isolate;
 }
 @media (max-width:980px){
-  .projectsMedia{width:144px;max-width:144px;min-width:144px;margin:0;flex-shrink:0}
+  .projectsMediaColumn{width:144px;max-width:144px;min-width:144px;margin:0;flex-shrink:0}
+  .projectsMedia{width:100%;max-width:100%;min-width:0;margin:0;flex-shrink:0}
 }
 /* Projects screen background (similar to brandHub) */
 .projectsScreen__bg{
@@ -2245,6 +2267,64 @@ body.chrome-hidden .topProgress{opacity:0}
   background:rgba(0,0,0,.22);
 }
 .projectsMedia__meta{
+  display:none;
+}
+.projectsDistribution{
+  position:relative;
+  width:100%;
+  box-sizing:border-box;
+  min-height:96px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.22);
+  box-shadow:0 14px 38px rgba(0,0,0,.24);
+  overflow:hidden;
+}
+.projectsDistribution__item{
+  position:absolute;
+  inset:0;
+  display:grid;
+  align-content:center;
+  gap:10px;
+  padding:14px;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(4px);
+  transition:opacity .28s var(--ease), transform .28s var(--ease);
+}
+.projectsDistribution__item.is-active{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0);
+}
+.projectsDistribution__label{
+  font-size:0.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.62);
+  text-align:center;
+}
+.projectsDistribution__logos{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.projectsDistribution__logoWrap{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+.projectsDistribution__logo{
+  display:block;
+  width:auto;
+  height:52px;
+  max-width:240px;
+  object-fit:contain;
+}
+.projectsDistribution:empty{
   display:none;
 }
 
@@ -2841,6 +2921,10 @@ body.chrome-hidden .topProgress{opacity:0}
 /* History and the Human Story highlights */
 .historyEventsScreen .frame--wide{
   width:min(1240px, 100%);
+}
+.historyEventsMobile[hidden],
+.historyEventsGrid[hidden]{
+  display:none !important;
 }
 .historyEventsMobile{
   display:none;
@@ -3928,16 +4012,23 @@ body.chrome-hidden .topProgress{opacity:0}
   .term{padding:var(--space-5) var(--space-4);border-radius:10px;}
 
   /* Fix poster container aspect ratios for NSC and NCN projects */
-  .projectsMedia{
-    aspect-ratio:2/3;
-    max-height:var(--projects-h);
+  .projectsMediaColumn{
     width:280px;
     min-width:280px;
     flex-shrink:0;
     max-width:280px;
   }
+  .projectsMedia{
+    aspect-ratio:2/3;
+    max-height:var(--projects-h);
+  }
   @media (max-width:980px){
-    .projectsMedia{width:140px;max-width:140px;min-width:140px;margin:0;flex-shrink:0;max-height:var(--projects-h);}
+    .projectsMediaColumn{width:140px;max-width:140px;min-width:140px;margin:0;flex-shrink:0;}
+    .projectsMedia{width:100%;max-width:100%;min-width:0;margin:0;flex-shrink:0;max-height:var(--projects-h);}
+    .projectsDistribution{min-height:70px;border-radius:14px;}
+    .projectsDistribution__item{padding:10px;gap:7px;}
+    .projectsDistribution__label{font-size:0.55rem;}
+    .projectsDistribution__logo{height:34px;max-width:108px;}
     
     /* Hide "more" sections on mobile */
     .projectsTabPanel__more{
@@ -4241,7 +4332,7 @@ body.chrome-hidden .topProgress{opacity:0}
   .milestonesList {
     height: auto;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
     gap: var(--space-3);
     padding: var(--space-4);
     overflow: hidden;
@@ -4274,13 +4365,13 @@ body.chrome-hidden .topProgress{opacity:0}
     display: none;
   }
   
-  /* Tab label - show #1, #2, etc. */
+  /* Tab label - show project name */
   .milestonesItem__tabLabel {
     display: block !important;
-    font-size: clamp(0.9rem, 2vw, 1rem) !important;
+    font-size: clamp(0.68rem, 1.8vw, 0.86rem) !important;
     font-weight: 700;
     color: rgba(255,255,255,.9);
-    line-height: 1;
+    line-height: 1.1;
   }
   
   /* Hide head and body in tab view - always hidden in tabs */
@@ -4424,7 +4515,7 @@ body.chrome-hidden .topProgress{opacity:0}
 
   /* Milestones: maximize vertical space efficiency */
   .milestones{--milestones-h:calc(min(35vh, 280px) - 180px) !important;gap:var(--space-4);}
-  .milestonesItem{padding:var(--space-4) var(--space-4);border-radius:12px;gap:var(--space-2);}
+  .milestonesItem{padding:var(--space-4) var(--space-4);border-radius:12px;gap:0;}
   .milestonesItem__head{gap:var(--space-3);padding-left:calc(var(--space-6) + var(--space-4)) !important;}
   .milestonesItem__body{padding-left:calc(var(--space-6) + var(--space-4)) !important;}
   .milestonesMedia{
@@ -4435,16 +4526,23 @@ body.chrome-hidden .topProgress{opacity:0}
   .milestonesList{gap:var(--space-3);padding:var(--space-3);}
 
   /* Fix poster container aspect ratios for NSC and NCN projects (cramped) */
-  .projectsMedia{
-    aspect-ratio:2/3;
-    max-height:var(--projects-h);
+  .projectsMediaColumn{
     width:240px;
     min-width:240px;
     flex-shrink:0;
     max-width:240px;
   }
+  .projectsMedia{
+    aspect-ratio:2/3;
+    max-height:var(--projects-h);
+  }
   @media (max-width:980px){
-    .projectsMedia{width:120px;max-width:120px;min-width:120px;margin:0;flex-shrink:0;max-height:var(--projects-h);}
+    .projectsMediaColumn{width:120px;max-width:120px;min-width:120px;margin:0;flex-shrink:0;}
+    .projectsMedia{width:100%;max-width:100%;min-width:0;margin:0;flex-shrink:0;max-height:var(--projects-h);}
+    .projectsDistribution{min-height:62px;border-radius:12px;}
+    .projectsDistribution__item{padding:8px;gap:6px;}
+    .projectsDistribution__label{font-size:0.5rem;}
+    .projectsDistribution__logo{height:30px;max-width:96px;}
     
     /* Hide "more" sections on mobile (cramped) */
     .projectsTabPanel__more{

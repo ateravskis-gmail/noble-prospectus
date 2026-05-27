@@ -28,7 +28,10 @@ const __nsProjectsDetailsMount = () => (function () {
   };
 
   const buildMore = (project) => {
-    const hasPartners = Array.isArray(project?.partners) && project.partners.length > 0;
+    const nonLogoPartners = Array.isArray(project?.partners)
+      ? project.partners.filter((partner) => !partner?.logo)
+      : [];
+    const hasPartners = nonLogoPartners.length > 0;
     const hasTalent = Array.isArray(project?.talent) && project.talent.length > 0;
     const hasBudget = !!(project?.budget && (project.budget.text || project.budget.label));
     if (!hasPartners && !hasTalent && !hasBudget) return null;
@@ -40,7 +43,7 @@ const __nsProjectsDetailsMount = () => (function () {
       section.appendChild(el("div", "projectMeta__k", "Partners"));
 
       const row = el("div", "projectMeta__logos");
-      project.partners.forEach((partner) => {
+      nonLogoPartners.forEach((partner) => {
         if (!partner || !partner.name) return;
         const label = String(partner.name);
         const href = partner.href ? String(partner.href) : "";

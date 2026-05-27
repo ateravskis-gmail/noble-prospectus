@@ -1851,21 +1851,21 @@ function bindBrandHubScrollCue() {
 // ---- Screen 5: Milestones (media scrollytelling) ----
 const MILESTONES = [
   {
-    kicker: "Endurance",
+    kicker: "Talent",
     title: "World-Class Talent Attachments",
-    tag: "ENDURANCE",
-    body: "Two-time Academy Award nominee Leslie Odom Jr. is attached to star as “Cedric King” in Endurance. Attached to direct is Roxann Dawson.",
+    tag: "ENDURANCE + THE HEART MENDER",
+    body: "Two-time Academy Award nominee Leslie Odom Jr. is attached to star in Endurance.  Zachary Levi is attached to star in The Heart Mender.",
     media: {
-      type: "video",
-      src: "./assets/Leslie.mp4",
-      poster: "./assets/milestones/endurance.svg",
+      type: "image",
+      src: "./assets/ZachLeslie.jpg",
+      alt: "Leslie Odom Jr. and Zachary Levi",
     },
   },
   {
     kicker: "Studio partner",
     title: "$1M+ Producing Deal",
     tag: "ENDURANCE",
-    body: "Thanks to the strong package on Endurance, Noble was able to secure a landmark producing deal with our studio partner worth over $1 million with hefty backend participation.",
+    body: "Noble secured a landmark producing deal with the studio worth over $1 million with hefty backend participation.",
     media: {
       type: "video",
       src: "./assets/ProducingDeal.mp4",
@@ -1876,7 +1876,7 @@ const MILESTONES = [
     kicker: "The Heart Mender",
     title: "$1.75M Equity Secured",
     tag: "THE HEART MENDER",
-    body: "We’ve successfully raised $1.75M for our WWII feature film The Heart Mender, and we’ve attached our friend David Henrie to star.",
+    body: "We’ve successfully raised $1.75M for our WWII feature film The Heart Mender, attached David Henrie and Zachary Levi to star, and secured a distribution LOI from Angel Studios.",
     media: {
       type: "video",
       src: "./assets/THMposter.mp4",
@@ -1884,13 +1884,24 @@ const MILESTONES = [
     },
   },
   {
-    kicker: "Noble Creator Network",
-    title: "$200K revenue • 1M+ views",
-    tag: "NOBLE CREATOR NETWORK",
-    body: "We launched Noble Creator Network and have partnered with four YouTube channels representing $200,000 in revenue over the last 16 months, with a combined total of over 1 million video views.",
+    kicker: "Benjamin Rush",
+    title: "Licensed to Wonder Project",
+    tag: "HISTORY AND THE HUMAN STORY",
+    body: "We licensed Benjamin Rush to Wonder Project on a non-exclusive basis for a $15K license fee.",
     media: {
       type: "video",
-      src: "./assets/NCNclips.mp4",
+      src: "./assets/WonderProjectLogo.mp4",
+      poster: "./assets/milestones/ncn-poster.svg",
+    },
+  },
+  {
+    kicker: "Top of the Class",
+    title: "Distribution Deal with Angel Studios",
+    tag: "TOP OF THE CLASS",
+    body: "Top of the Class has been offered adistribution deal with Angel Studios, creating a clear path for the show to reach a larger audience.",
+    media: {
+      type: "video",
+      src: "./assets/AngelStudiosLogo.mp4",
       poster: "./assets/milestones/ncn-poster.svg",
     },
   },
@@ -1919,6 +1930,12 @@ function mountMilestones() {
   const itemBtns = [];
   const stageItems = [];
   const stageVideos = [];
+  let hoverIntentTimer = 0;
+  const clearHoverIntent = () => {
+    if (!hoverIntentTimer) return;
+    window.clearTimeout(hoverIntentTimer);
+    hoverIntentTimer = 0;
+  };
 
   for (let i = 0; i < MILESTONES.length; i++) {
     const m = MILESTONES[i];
@@ -1964,11 +1981,12 @@ function mountMilestones() {
     btn.dataset.index = String(i);
     btn.setAttribute("role", "option");
     btn.setAttribute("aria-selected", "false");
+    btn.setAttribute("aria-expanded", "false");
 
-    // Tab label for mobile (just the number)
+    // Tab label for mobile compact project tabs.
     const tabLabel = document.createElement("div");
     tabLabel.className = "milestonesItem__tabLabel";
-    tabLabel.textContent = `#${i + 1}`;
+    tabLabel.textContent = m.kicker || m.title || `#${i + 1}`;
 
     const head = document.createElement("div");
     head.className = "milestonesItem__head";
@@ -1994,9 +2012,17 @@ function mountMilestones() {
     btn.appendChild(head);
     btn.appendChild(body);
 
-    btn.addEventListener("pointerenter", () => setActive(i), { passive: true });
+    btn.addEventListener("pointerenter", (e) => {
+      if (e.pointerType === "touch") return;
+      clearHoverIntent();
+      hoverIntentTimer = window.setTimeout(() => setActive(i), 140);
+    }, { passive: true });
+    btn.addEventListener("pointerleave", clearHoverIntent, { passive: true });
     btn.addEventListener("focus", () => setActive(i));
-    btn.addEventListener("click", () => setActive(i));
+    btn.addEventListener("click", () => {
+      clearHoverIntent();
+      setActive(i);
+    });
 
     list.appendChild(btn);
     itemBtns[i] = btn;
@@ -2062,6 +2088,7 @@ function mountMilestones() {
       const is = j === activeIndex;
       itemBtns[j].classList.toggle("is-active", is);
       itemBtns[j].setAttribute("aria-selected", is ? "true" : "false");
+      itemBtns[j].setAttribute("aria-expanded", is ? "true" : "false");
       stageItems[j].classList.toggle("is-active", is);
     }
 
@@ -2102,22 +2129,6 @@ function mountMilestones() {
     itemBtns[next]?.scrollIntoView({ block: "nearest" });
   });
 
-  // Scroll-driven selection via IntersectionObserver
-  let io = null;
-  if ("IntersectionObserver" in window) {
-    io = new IntersectionObserver(
-      (entries) => {
-        const vis = entries.filter((x) => x.isIntersecting);
-        if (!vis.length) return;
-        vis.sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0));
-        const idx = Number(vis[0].target?.dataset?.index);
-        if (Number.isFinite(idx)) setActive(idx);
-      },
-      { root: list, threshold: [0.55] }
-    );
-    itemBtns.forEach((b) => io.observe(b));
-  }
-
   // Initial state
   setActive(0, { force: true });
 
@@ -2127,7 +2138,7 @@ function mountMilestones() {
     pauseAll,
     setActive,
     destroy: () => {
-      try { io?.disconnect(); } catch {}
+      clearHoverIntent();
       pauseAll();
     },
   };
@@ -2136,10 +2147,11 @@ function mountMilestones() {
 function mountHistoryEvents() {
   const section = document.querySelector(".historyEventsScreen");
   const grid = section?.querySelector(".historyEventsGrid");
+  const mobileContainer = document.getElementById("historyEventsMobile");
   const tabs = document.getElementById("historyEventsMobileTabs");
   const image = document.getElementById("historyEventsMobileImage");
   const panel = document.getElementById("historyEventsMobilePanel");
-  if (!section || !grid || !tabs || !image || !panel) return;
+  if (!section || !grid || !mobileContainer || !tabs || !image || !panel) return;
 
   const cards = Array.from(grid.querySelectorAll(".historyEventCard"));
   if (!cards.length) return;
@@ -2233,6 +2245,19 @@ function mountHistoryEvents() {
     setActive(next);
     tabButtons[next]?.focus();
   });
+
+  const mobileMq = window.matchMedia("(max-width: 980px)");
+  const syncMode = () => {
+    const isMobile = mobileMq.matches;
+    mobileContainer.hidden = !isMobile;
+    grid.hidden = isMobile;
+  };
+  syncMode();
+  try {
+    mobileMq.addEventListener("change", syncMode);
+  } catch {
+    mobileMq.addListener(syncMode);
+  }
 
   setActive(0);
 }
@@ -2331,8 +2356,22 @@ function mountProjects() {
   if (!dataEl || !list || !stage || !bgImage) return;
 
   const PROJECTS = JSON.parse(dataEl.textContent);
+  const media = stage.closest(".projectsMedia");
+  let distributionHost = media?.parentElement?.querySelector(".projectsDistribution");
+  if (media && !media.parentElement?.classList.contains("projectsMediaColumn")) {
+    const column = document.createElement("div");
+    column.className = "projectsMediaColumn";
+    media.parentElement.insertBefore(column, media);
+    column.appendChild(media);
+    distributionHost = document.createElement("div");
+    distributionHost.className = "projectsDistribution";
+    column.appendChild(distributionHost);
+  } else if (media?.parentElement?.classList.contains("projectsMediaColumn")) {
+    distributionHost = media.parentElement.querySelector(".projectsDistribution");
+  }
   list.innerHTML = "";
   stage.innerHTML = "";
+  if (distributionHost) distributionHost.innerHTML = "";
 
   // Map project titles to background images
   const BG_IMAGES = {
@@ -2343,6 +2382,7 @@ function mountProjects() {
 
   const itemBtns = [];
   const stageItems = [];
+  const distributionItems = [];
 
   for (let i = 0; i < PROJECTS.length; i++) {
     const p = PROJECTS[i];
@@ -2361,6 +2401,45 @@ function mountProjects() {
 
     stage.appendChild(mediaWrap);
     stageItems[i] = mediaWrap;
+
+    const distributionPartners = Array.isArray(p.partners)
+      ? p.partners.filter((partner) => partner?.logo)
+      : [];
+    if (distributionHost && distributionPartners.length) {
+      const distribution = document.createElement("div");
+      distribution.className = "projectsDistribution__item";
+      distribution.dataset.index = String(i);
+
+      const label = document.createElement("div");
+      label.className = "projectsDistribution__label";
+      label.textContent = distributionPartners.length === 1 ? "Distribution Partner" : "Distribution Partners";
+      distribution.appendChild(label);
+
+      const logos = document.createElement("div");
+      logos.className = "projectsDistribution__logos";
+      distributionPartners.forEach((partner) => {
+        const logoWrap = partner.href ? document.createElement("a") : document.createElement("div");
+        logoWrap.className = "projectsDistribution__logoWrap";
+        if (partner.href) {
+          logoWrap.href = partner.href;
+          logoWrap.target = "_blank";
+          logoWrap.rel = "noopener noreferrer";
+          logoWrap.setAttribute("aria-label", partner.name);
+        }
+
+        const logo = document.createElement("img");
+        logo.className = "projectsDistribution__logo";
+        logo.src = partner.logo;
+        logo.alt = partner.name;
+        logo.loading = "lazy";
+        logo.decoding = "async";
+        logoWrap.appendChild(logo);
+        logos.appendChild(logoWrap);
+      });
+      distribution.appendChild(logos);
+      distributionHost.appendChild(distribution);
+      distributionItems[i] = distribution;
+    }
 
     // Tab button
     const tabBtn = document.createElement("button");
@@ -2602,6 +2681,7 @@ function mountProjects() {
     // Update media items
     for (let idx = 0; idx < stageItems.length; idx++) {
       stageItems[idx].classList.toggle("is-active", idx === i);
+      distributionItems[idx]?.classList.toggle("is-active", idx === i);
     }
 
     // Update tab buttons (visual highlight only, not tab switching)
@@ -2649,9 +2729,7 @@ function bindNcnPillars() {
   // Map tab data attributes to video sources
   const TAB_VIDEOS = {
     "top-of-class": "./assets/TOTCbg.mp4",
-    "history": "./assets/LoconteBG.mp4",
-    "coffee": "./assets/StephenBG.mp4",
-    "faith-tech": "./assets/FandT.mp4"
+    "history": "./assets/LoconteBG.mp4"
   };
 
   const setBgSrc = async (src) => {
